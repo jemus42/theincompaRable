@@ -21,16 +21,19 @@ gameshow     <- get_initial_stats("gameshow", show_title = "Game Show") %>%
 
 #### Needs work ####
 # Something is not right, but it's more or less usable
+# Missing episodes 65 and 75
 teevee       <- get_initial_stats("teevee", show_title = "TeeVee") %>%
                   get_teevee_stats()
 
 #### Experimental ####
 # Testing
+tvtm     <- get_initial_stats("tvtm", show_title = "TV Talk Machine") %>%
+  get_podcast_stats()
 
 #### Saving files locally ####
 saveRDS(incomparable, "data/incomparable.rds")
 saveRDS(robot,        "data/robot.rds")
-saveRDS(teevee,       "data/teevee.rds")
+#saveRDS(teevee,       "data/teevee.rds")
 saveRDS(gameshow,     "data/gameshow.rds")
 
 #### Binding the good datasets to a master dataset ####

@@ -50,7 +50,8 @@ get_podcast_stats <- function(showstats) {
     filter(!is.na(number)) %>%
     mutate(duration = parse_duration(duration),
            date = dmy(date),
-           host_first = str_extract(host, "^\\w*\\s\\w*"),
+         #  host_first = str_extract(host, "^\\w*\\s\\w*"),
+           host_first = str_extract(host, "^(\\w*\\s\\w*)|(\\w*\\s\\w\\.\\w*\\s\\w*)"),
            host_second = str_replace(host, "^.*(with|and)\\s", ""),
            host = host_first) %>%
     separate(host_second, c("guest_1", "guest_2"), sep = " and ")
@@ -84,7 +85,8 @@ get_teevee_stats <- function(showstats) {
     filter(!is.na(number)) %>%
     mutate(duration = parse_duration(duration),
            date = dmy(date),
-           host_first = str_extract(host, "^\\w*\\s\\w*"),
+         #  host_first = str_extract(host, "^\\w*\\s\\w*"),
+           host_first = str_extract(host, "^(\\w*\\s\\w*)|(\\w*\\s\\w\\.\\w*\\s\\w*)"),
            host_second = str_replace(host, "with", "and"),
            host_second = str_replace(host_second, "^\\w*\\s\\w*\\s(and)\\s", ""),
            host_first  = str_trim(host_first, "both"),
