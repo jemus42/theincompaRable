@@ -2,5 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-data/*
 README.html
+*.html
+*_files

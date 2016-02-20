@@ -1,0 +1,77 @@
+---
+title: "The Incomparable Podcast — In Numbers"
+date: "`r format(Sys.time(), '%F %R', tz = 'UTC', usetz = T)`"
+author: "Lukas (@jemus42)"
+output:
+  rmdformats::readthedown:
+    highlight: kate
+---
+
+```{r knitr_init, echo=FALSE, cache=FALSE, include=FALSE}
+library(knitr)
+library(rmdformats)
+library(readr)
+library(ggplot2)
+library(magrittr)
+library(dplyr)
+library(stringr)
+library(lubridate)
+library(tidyr)
+library(DT)
+library(formattable)
+
+## Global options
+options(max.print = "75")
+opts_chunk$set(echo    = FALSE,
+	             cache   = FALSE,
+               prompt  = FALSE,
+               tidy    = TRUE,
+               comment = NA,
+               message = FALSE,
+               warning = FALSE)
+opts_knit$set(width = 90)
+
+incomparable <- readRDS("data/incomparable.rds")
+```
+
+```{r}
+ggplot(data = incomparable, aes(x = reorder(host, duration), y = duration)) +
+  geom_boxplot() +
+  coord_flip() +
+  labs(title = "The Incomparable Podcast\nShow Duration by Primary Host",
+       x = "Host (first listed)", y = "Duration (min)") +
+  theme_bw()
+
+incomparable %>%
+  group_by(guest) %>%
+  tally %>%
+  arrange(desc(n)) %>%
+  ggplot(aes(x = reorder(guest, n), weight = n)) +
+  geom_bar() +
+  coord_flip() +
+  labs(title = "The Incomparable Podcast\nGuest Appearances",
+       x = "Guest", y = "# of Episodes") +
+  theme_bw()
+
+incomparable %>%
+  group_by(guest) %>%
+  summarize(n = n(), airtime_total = sum(duration)) %>%
+  arrange(desc(n)) %>%
+  ungroup %>%
+  mutate(perc_episodes = (n/max(incomparable$number)) * 100,
+         perc_guests    = (n/sum(n)) * 100,
+         perc_airtime_total = airtime_total/sum(incomparable$duration) * 100) %>%
+  datatable()
+
+incomparable %>% 
+  group_by(host) %>%
+  summarize(n = n(), airtime_total = sum(duration)) %>%
+  arrange(desc(n)) %>%
+  ungroup %>%
+  mutate(perc_episodes = (n/max(incomparable$number)) * 100,
+         perc_guests    = (n/sum(n)) * 100,
+         perc_airtime_total = airtime_total/sum(incomparable$duration) * 100) %>%
+  datatable()
+
+```
+
