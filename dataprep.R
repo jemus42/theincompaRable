@@ -26,7 +26,7 @@ incomparable %<>%
   separate(guest4, c("guest4_1", "guest4_2"), sep = " and ") %>%
   gather(position, guest, contains("guest")) %>%
   filter(!is.na(guest)) %>%
-  select(number, date, duration, title, host, guest, position) %>%
+  select(number, date, duration, title, host, guest) %>%
   arrange(desc(number))
 
 saveRDS(incomparable, "data/incomparable.rds")
