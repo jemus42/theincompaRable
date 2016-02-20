@@ -84,6 +84,7 @@ fix_guests <- function(showstats){
   showstats %<>%
     gather(position, guest, contains("guest")) %>%
     filter(!is.na(guest)) %>%
+    mutate(guest = str_trim(guest, side = "both")) %>%
     select(-position) %>%
     rename(host = host_1) %>%
     arrange(desc(number))
