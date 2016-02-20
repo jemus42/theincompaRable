@@ -15,3 +15,4 @@ And now my analysis begins.
 ## Progress
 
 - 2016-02-20 04:44 UTC: I started with the basic data cleanup.
+- 2016-02-20 05:58:00 UTC: Data cleaning probably done. Now the fun can s- oh hey look it's 7am and I didn't sleep.
