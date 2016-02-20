@@ -12,12 +12,13 @@ source("helpers.R")
 #### Okay ####
 # Output seems to be okay
 
+# Problem with 86 due to too many damn quotes and commas
 incomparable <- get_initial_stats("theincomparable", show_title = "The Incomparable") %>%
                   get_podcast_stats()
 robot        <- get_initial_stats("robot", show_title = "Robot or Not") %>%
                   get_podcast_stats()
 gameshow     <- get_initial_stats("gameshow", show_title = "Game Show") %>%
-                get_podcast_stats()
+                 get_podcast_stats()
 
 #### Needs work ####
 # Something is not right, but it's more or less usable

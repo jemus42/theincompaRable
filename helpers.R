@@ -18,6 +18,16 @@ parse_duration <- function(x){
   return(mins)
 }
 
+#### Parse date and times
+
+parse_podcasts_step1 <- function(showstats) {
+  showstats %<>%
+    filter(!is.na(number)) %>%
+    mutate(duration = parse_duration(duration),
+           date     = dmy(date))
+  return(showstats)
+}
+
 #### Initial collection of the stats file ####
 get_initial_stats <- function(urlpartial = "theincomparable", show_title = "The Incomparable") {
   require(readr)
@@ -26,10 +36,12 @@ get_initial_stats <- function(urlpartial = "theincomparable", show_title = "The 
   stats_url <- paste0("https://www.theincomparable.com/", urlpartial, "/stats.txt")
   showstats <- readLines(stats_url) %>%
     str_replace_all(',(?=[^"]*"(?:[^"]*"[^"]*")*[^"]*$)', "COMMA") %>%
-    str_replace_all('"', "“") %>%
+    str_replace_all('"(?=.*")', "QUOT") %>%
+    str_replace("QUOT",'"') %>%
     paste0(collapse = "\n") %>%
     read_csv(col_names = F, trim_ws = T) %>%
     filter(!is.na(X1))
+
 
   if (ncol(showstats) == 5) {
     names(showstats) <- c("number", "date", "duration", "title", "host")
@@ -39,19 +51,23 @@ get_initial_stats <- function(urlpartial = "theincomparable", show_title = "The 
   showstats$podcast <- show_title
   showstats$guest1[!(str_detect(showstats$host, pattern = ".*(and|with).*"))] <- "None"
   showstats$title  <- str_replace_all(showstats$title, "COMMA", ",")
-  showstats$title  <- str_replace_all(showstats$title, "^“", "")
-  showstats$title  <- str_replace_all(showstats$title, "“$", "")
+  showstats$title  <- str_replace_all(showstats$title, "QUOT", "“")
+
   return(showstats)
 }
 
+extract_main_host <- function(host) {
+
+  host %>% str_extract("^.*(and|with)") %>%
+    str_replace_all("(and|with)", "") %>%
+    str_trim("both")
+}
+
+
 #### Fully clean stats data ####
 get_podcast_stats <- function(showstats) {
-  showstats %<>%
-    filter(!is.na(number)) %>%
-    mutate(duration = parse_duration(duration),
-           date = dmy(date),
-         #  host_first = str_extract(host, "^\\w*\\s\\w*"),
-           host_first = str_extract(host, "^(\\w*\\s\\w*)|(\\w*\\s\\w\\.\\w*\\s\\w*)"),
+  parse_podcasts_step1(showstats) %>%
+    mutate(host_first = extract_main_host(host),
            host_second = str_replace(host, "^.*(with|and)\\s", ""),
            host = host_first) %>%
     separate(host_second, c("guest_1", "guest_2"), sep = " and ")
