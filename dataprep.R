@@ -15,6 +15,8 @@ gameshow     <- get_podcast_stats("gameshow",        show_title = "Game Show")
 teevee       <- get_podcast_stats("teevee",          show_title = "TeeVee")
 tvtm         <- get_podcast_stats("tvtm",            show_title = "TV Talk Machine")
 tpk          <- get_podcast_stats("tpk",             show_title = "Total Party Kill")
+ump          <- get_podcast_stats("ump",             show_title = "Unjustly Maligned")
+randomtrek   <- get_podcast_stats("randomtrek",      show_title = "Random Trek")
 
 #### Saving files locally ####
 saveRDS(incomparable, "data/incomparable.rds")
@@ -23,9 +25,11 @@ saveRDS(teevee,       "data/teevee.rds")
 saveRDS(gameshow,     "data/gameshow.rds")
 saveRDS(tvtm,         "data/tvtm.rds")
 saveRDS(tpk,          "data/tpk.rds")
+saveRDS(ump,           "data/ump.rds")
+saveRDS(randomtrek,   "data/randomtrek.rds")
 
 #### Binding the good datasets to a master dataset ####
-incomparable_master <- bind_rows(incomparable, robot, teevee, gameshow, tvtm, tpk)
+incomparable_master <- bind_rows(incomparable, robot, teevee, gameshow, tvtm, tpk, ump, randomtrek)
 saveRDS(incomparable_master, "data/incomparable_master.rds")
 
 #### Quick check ####
@@ -33,4 +37,5 @@ incomparable_master %>% group_by(podcast) %>%
   summarize(episodes = length(unique(number)),
             guests   = length(guest),
             guests_unique = length(unique(guest)),
-            hours    = round(sum(duration)/60, 2))
+            hours    = round(sum(duration)/60, 2),
+            days     = round(hours/60, 2))
