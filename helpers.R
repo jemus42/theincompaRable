@@ -19,7 +19,6 @@ parse_duration <- function(x){
 }
 
 #### Parse date and times
-
 parse_podcasts_step1 <- function(showstats) {
   showstats %<>%
     filter(!is.na(number)) %>%
@@ -29,6 +28,7 @@ parse_podcasts_step1 <- function(showstats) {
 }
 
 #### Initial collection of the stats file ####
+# Thanks a lot, @l3viathan https://twitter.com/L3viathan2142/status/701009923841400833
 get_initial_stats <- function(urlpartial = "theincomparable", show_title = "The Incomparable") {
   require(readr)
   require(magrittr)
@@ -42,36 +42,29 @@ get_initial_stats <- function(urlpartial = "theincomparable", show_title = "The 
     read_csv(col_names = F, trim_ws = T) %>%
     filter(!is.na(X1))
 
-
   if (ncol(showstats) == 5) {
     names(showstats) <- c("number", "date", "duration", "title", "host")
   } else {
     names(showstats) <- c("number", "date", "duration", "title", "host", paste0("guest", 1:(ncol(showstats) - 5)))
   }
   showstats$podcast <- show_title
-  showstats$guest1[!(str_detect(showstats$host, pattern = ".*(and|with).*"))] <- "None"
+  showstats %<>% select(podcast, everything())
   showstats$title  <- str_replace_all(showstats$title, "COMMA", ",")
   showstats$title  <- str_replace_all(showstats$title, "QUOT", "“")
 
   return(showstats)
 }
 
-extract_main_host <- function(host) {
-
-  host %>% str_extract("^.*(and|with)") %>%
-    str_replace_all("(and|with)", "") %>%
-    str_trim("both")
+extract_main_host <- function(showstats) {
+  showstats %>% separate(host, into = c("host_1", "host_2", "host_3", "host_4"), sep = "(and|with)") %>%
+    mutate(host_2 = ifelse(is.na(host_2), "None", host_2)) %>%
+    rename(guest_dummy_1 = host_2,
+           guest_dummy_2 = host_3,
+           guest_dummy_3 = host_4) %>%
+    return()
 }
 
-
-#### Fully clean stats data ####
-get_podcast_stats <- function(showstats) {
-  parse_podcasts_step1(showstats) %>%
-    mutate(host_first = extract_main_host(host),
-           host_second = str_replace(host, "^.*(with|and)\\s", ""),
-           host = host_first) %>%
-    separate(host_second, c("guest_1", "guest_2"), sep = " and ")
-
+fix_guests <- function(showstats){
   if ("guest1" %in% names(showstats)) {
     showstats %<>% separate(guest1, c("guest1_1", "guest1_2"), sep = " and ")
   }
@@ -87,50 +80,18 @@ get_podcast_stats <- function(showstats) {
   if ("guest5" %in% names(showstats)) {
     showstats %<>% separate(guest5, c("guest5_1", "guest5_2"), sep = " and ")
   }
-  showstats %>%
-    gather(position, guest, contains("guest")) %>%
-    filter(!is.na(guest)) %>%
-    select(podcast, number, date, duration, title, host, guest) %>%
-    arrange(desc(number)) %>%
-    return()
-}
-
-
-get_teevee_stats <- function(showstats) {
   showstats %<>%
-    filter(!is.na(number)) %>%
-    mutate(duration = parse_duration(duration),
-           date = dmy(date),
-         #  host_first = str_extract(host, "^\\w*\\s\\w*"),
-           host_first = str_extract(host, "^(\\w*\\s\\w*)|(\\w*\\s\\w\\.\\w*\\s\\w*)"),
-           host_second = str_replace(host, "with", "and"),
-           host_second = str_replace(host_second, "^\\w*\\s\\w*\\s(and)\\s", ""),
-           host_first  = str_trim(host_first, "both"),
-           host_second = str_trim(host_second, "both"),
-           host = host_first) %>%
-    separate(host_second, c("guest_1", "guest_2", "guest_3"), sep = " and ")
-
-  if ("guest1" %in% names(showstats)) {
-    showstats %<>% separate(guest1, c("guest1_1", "guest1_2"), sep = " and ")
-  }
-  if ("guest2" %in% names(showstats)) {
-    showstats %<>% separate(guest2, c("guest2_1", "guest2_2"), sep = " and ")
-  }
-  if ("guest3" %in% names(showstats)) {
-    showstats %<>% separate(guest3, c("guest3_1", "guest3_2"), sep = " and ")
-  }
-  if ("guest4" %in% names(showstats)) {
-    showstats %<>% separate(guest4, c("guest4_1", "guest4_2"), sep = " and ")
-  }
-  if ("guest5" %in% names(showstats)) {
-    showstats %<>% separate(guest5, c("guest5_1", "guest5_2"), sep = " and ")
-  }
-  showstats %>%
     gather(position, guest, contains("guest")) %>%
     filter(!is.na(guest)) %>%
-    select(podcast, number, date, duration, title, host, guest) %>%
-    arrange(desc(number)) %>%
-    mutate(guest = str_trim(guest, side = "both")) %>%
-    filter(host != guest) %>%
-    return()
+    select(-position) %>%
+    rename(host = host_1) %>%
+    arrange(desc(number))
+  return(showstats)
+}
+
+get_podcast_stats <- function(urlpartial = "theincomparable", show_title = "The Incomparable"){
+    get_initial_stats(urlpartial, show_title) %>%
+    parse_podcasts_step1() %>%
+    extract_main_host() %>%
+    fix_guests()
 }

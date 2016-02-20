@@ -8,37 +8,24 @@ library(tidyr)
 library(DT)
 source("helpers.R")
 
-
-#### Okay ####
-# Output seems to be okay
-
-# Problem with 86 due to too many damn quotes and commas
-incomparable <- get_initial_stats("theincomparable", show_title = "The Incomparable") %>%
-                  get_podcast_stats()
-robot        <- get_initial_stats("robot", show_title = "Robot or Not") %>%
-                  get_podcast_stats()
-gameshow     <- get_initial_stats("gameshow", show_title = "Game Show") %>%
-                 get_podcast_stats()
-
-#### Needs work ####
-# Something is not right, but it's more or less usable
-# Missing episodes 65 and 75
-teevee       <- get_initial_stats("teevee", show_title = "TeeVee") %>%
-                  get_teevee_stats()
-
-#### Experimental ####
-# Testing
-tvtm     <- get_initial_stats("tvtm", show_title = "TV Talk Machine") %>%
-  get_podcast_stats()
+#### Getting individual show stats ####
+incomparable <- get_podcast_stats("theincomparable", show_title = "The Incomparable") %>%
+robot        <- get_podcast_stats("robot", show_title = "Robot or Not") %>%
+gameshow     <- get_podcast_stats("gameshow", show_title = "Game Show") %>%
+teevee       <- get_podcast_stats("teevee", show_title = "TeeVee") %>%
+tvtm         <- get_podcast_stats("tvtm", show_title = "TV Talk Machine") %>%
+tpk          <- get_podcast_stats("tpk", show_title = "Total Party Kill")
 
 #### Saving files locally ####
 saveRDS(incomparable, "data/incomparable.rds")
 saveRDS(robot,        "data/robot.rds")
-#saveRDS(teevee,       "data/teevee.rds")
+saveRDS(teevee,       "data/teevee.rds")
 saveRDS(gameshow,     "data/gameshow.rds")
+saveRDS(tvtm,         "data/tvtm.rds")
+saveRDS(tpk,          "data/tpk.rds")
 
 #### Binding the good datasets to a master dataset ####
-incomparable_master <- bind_rows(incomparable, robot, gameshow)
+incomparable_master <- bind_rows(incomparable, robot, teevee, gameshow, tvtm, tpk)
 saveRDS(incomparable_master, "data/incomparable_master.rds")
 
 #### Quick check ####
