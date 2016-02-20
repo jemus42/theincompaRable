@@ -9,12 +9,12 @@ library(DT)
 source("helpers.R")
 
 #### Getting individual show stats ####
-incomparable <- get_podcast_stats("theincomparable", show_title = "The Incomparable") %>%
-robot        <- get_podcast_stats("robot", show_title = "Robot or Not") %>%
-gameshow     <- get_podcast_stats("gameshow", show_title = "Game Show") %>%
-teevee       <- get_podcast_stats("teevee", show_title = "TeeVee") %>%
-tvtm         <- get_podcast_stats("tvtm", show_title = "TV Talk Machine") %>%
-tpk          <- get_podcast_stats("tpk", show_title = "Total Party Kill")
+incomparable <- get_podcast_stats("theincomparable", show_title = "The Incomparable")
+robot        <- get_podcast_stats("robot",           show_title = "Robot or Not")
+gameshow     <- get_podcast_stats("gameshow",        show_title = "Game Show")
+teevee       <- get_podcast_stats("teevee",          show_title = "TeeVee")
+tvtm         <- get_podcast_stats("tvtm",            show_title = "TV Talk Machine")
+tpk          <- get_podcast_stats("tpk",             show_title = "Total Party Kill")
 
 #### Saving files locally ####
 saveRDS(incomparable, "data/incomparable.rds")
