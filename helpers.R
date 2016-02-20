@@ -56,8 +56,9 @@ get_initial_stats <- function(urlpartial = "theincomparable", show_title = "The 
 }
 
 extract_main_host <- function(showstats) {
-  showstats %>% separate(host, into = c("host_1", "host_2", "host_3", "host_4"), sep = "(and|with)") %>%
-    mutate(host_2 = ifelse(is.na(host_2), "None", host_2)) %>%
+  showstats %>% separate(host, into = c("host_1", "host_2", "host_3", "host_4"), sep = "(\\s(and)|with)") %>%
+    mutate(host_2 = ifelse(is.na(host_2), "None", host_2),
+           host_1 = str_trim(host_1, "both")) %>%
     rename(guest_dummy_1 = host_2,
            guest_dummy_2 = host_3,
            guest_dummy_3 = host_4) %>%

@@ -25,7 +25,7 @@ saveRDS(teevee,       "data/teevee.rds")
 saveRDS(gameshow,     "data/gameshow.rds")
 saveRDS(tvtm,         "data/tvtm.rds")
 saveRDS(tpk,          "data/tpk.rds")
-saveRDS(ump,           "data/ump.rds")
+saveRDS(ump,          "data/ump.rds")
 saveRDS(randomtrek,   "data/randomtrek.rds")
 
 #### Binding the good datasets to a master dataset ####
@@ -35,6 +35,7 @@ saveRDS(incomparable_master, "data/incomparable_master.rds")
 #### Quick check ####
 incomparable_master %>% group_by(podcast) %>%
   summarize(episodes = length(unique(number)),
+            hosts_unique = length(unique(host)),
             guests   = length(guest),
             guests_unique = length(unique(guest)),
             hours    = round(sum(duration)/60, 2),
