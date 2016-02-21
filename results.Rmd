@@ -1,7 +1,7 @@
 ---
 title: "The Incomparable Podcast — In Numbers"
 date: "`r format(Sys.time(), '%F %R', tz = 'UTC', usetz = T)`"
-author: "Lukas (@jemus42)"
+author: "Lukas — @jemus42"
 output:
   rmdformats::readthedown:
     highlight: kate
@@ -14,11 +14,11 @@ library(readr)
 library(ggplot2)
 library(magrittr)
 library(dplyr)
-library(stringr)
 library(lubridate)
 library(tidyr)
 library(DT)
 library(formattable)
+library(svglite)
 
 ## Global options
 options(max.print = "75")
@@ -28,20 +28,103 @@ opts_chunk$set(echo    = FALSE,
                tidy    = TRUE,
                comment = NA,
                message = FALSE,
-               warning = FALSE)
+               warning = FALSE,
+               dev = "svglite",
+               fig.ext = ".svg")
 opts_knit$set(width = 90)
 
 incomparable <- readRDS("data/incomparable.rds")
+
+incomparable %<>% 
+  mutate(year = as.factor(year(date)),
+         month = month(date, abbr = F, label = T),
+         weekday = wday(date, label = T, abbr = F)) %>%
+  select(number, date, year, month, weekday, duration, title, host, guest)
 ```
 
-```{r}
+# Introduction
+
+Well, [Jason Snell tweeted](https://twitter.com/jsnell/status/700864025949655040) a graph of The Incomparable runtimes.  
+As a big fan of the podcast and an aspiring nerd, [I asked for the data, obviously](https://twitter.com/Jemus42/status/700864609083850753).  
+I was happy to [receive his .numbers file](https://twitter.com/jsnell/status/700864809537970176), but unfortunately [it only contained two variables](https://twitter.com/Jemus42/status/700870531697004544) - the two needed for the plot.  
+Jason replied [he could get more metadata if I liked](https://twitter.com/jsnell/status/700870702367318017) and since I **really really would like** that, I rushed to set up [this repository](https://github.com/jemus42/theincompaRable) and put on my data-pants.  
+A short time after that, [Jason delivered magnificiently](https://twitter.com/jsnell/status/700882298795765761).  
+And now my analysis begins.
+
+# Episodes in General
+
+```{r episodes_month}
+incomparable %>%
+  mutate(month = factor(month, levels = rev(levels(month)))) %>%
+  ggplot(aes(x = month)) +
+  geom_bar() +
+  coord_flip() +
+  facet_wrap(~year, ncol = 3)
+
+incomparable %>%
+  ggplot(aes(x = month)) +
+  geom_bar() +
+  facet_grid(year~.)
+```
+
+# Runtime
+
+```{r runtime_}
+ggplot(data = incomparable, aes(x = duration)) +
+  geom_histogram() +
+  labs(title = "The Incomparable Podcast\nShow Duration",
+       x = "Duration (min)") +
+  theme_bw()
+
+ggplot(data = incomparable, aes(x = number, y = duration, colour = host)) +
+  geom_point() +
+  labs(title = "The Incomparable Podcast\nShow Duration",
+       x = "Episode #", y = "Duration (min)") +
+  theme_bw()
+```
+
+## Runtime by Host
+
+```{r runtime_by_host}
 ggplot(data = incomparable, aes(x = reorder(host, duration), y = duration)) +
   geom_boxplot() +
   coord_flip() +
   labs(title = "The Incomparable Podcast\nShow Duration by Primary Host",
        x = "Host (first listed)", y = "Duration (min)") +
   theme_bw()
+```
 
+## Runtime over Time
+
+### Over Years
+
+```{r runtime_years}
+ggplot(data = incomparable, aes(x = year, y = duration)) +
+  geom_boxplot()
+```
+
+### Over Years/Months
+
+```{r runtime_yearmonth}
+incomparable %>%
+  mutate(month = factor(month, levels = rev(levels(month)))) %>%
+  ggplot(aes(x = month, y = duration)) +
+  geom_boxplot() +
+  coord_flip() +
+  facet_wrap(~year, ncol = 3)
+
+```
+
+### Weekdays
+
+```{r runtime_wday}
+ggplot(data = incomparable, aes(x = weekday, y = duration)) +
+  geom_boxplot()
+```
+
+# Guests
+
+```{r guests, fig.height=9}
 incomparable %>%
   group_by(guest) %>%
   tally %>%
@@ -55,23 +138,18 @@ incomparable %>%
 
 incomparable %>%
   group_by(guest) %>%
-  summarize(n = n(), airtime_total = sum(duration)) %>%
+  summarize(n = n(), airtime_total = round(sum(duration), 2)) %>%
   arrange(desc(n)) %>%
   ungroup %>%
-  mutate(perc_episodes = (n/max(incomparable$number)) * 100,
-         perc_guests    = (n/sum(n)) * 100,
-         perc_airtime_total = airtime_total/sum(incomparable$duration) * 100) %>%
-  datatable()
-
-incomparable %>% 
-  group_by(host) %>%
-  summarize(n = n(), airtime_total = sum(duration)) %>%
-  arrange(desc(n)) %>%
-  ungroup %>%
-  mutate(perc_episodes = (n/max(incomparable$number)) * 100,
-         perc_guests    = (n/sum(n)) * 100,
-         perc_airtime_total = airtime_total/sum(incomparable$duration) * 100) %>%
-  datatable()
-
+  mutate(perc_episodes = round((n/max(incomparable$number)) * 100, 2),
+         perc_guests    = round((n/sum(n)) * 100, 2),
+         perc_airtime = round(airtime_total/sum(incomparable$duration) * 100, 2)) %>%
+  select(-airtime_total) %>%
+  datatable(colnames = c("Guest", "Episodes", "Episode %", 
+                         "% of Guests", "% of Guests by Airtime"))
 ```
 
+# Acknowledgements
+
+- Thanks to Jason for setting up the `stats.txt` files I parsed for the data.
+- Thanks to [Juba](https://twitter.com/lapply) for the [RMarkdown template](https://github.com/juba/rmdformats)
