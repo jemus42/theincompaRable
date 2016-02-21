@@ -51,7 +51,8 @@ incomparable_master <- bind_rows(incomparable, robot, teevee, gameshow, tvtm, tp
                                  randomtrek, radio, afoot, defocused, lazydoctorwho, myke,
                                  ruin, cartooncast, pod4ham, notplaying) %>%
                        mutate(year = as.factor(year(date)),
-                             month = month(date, abbr = F, label = T))
+                             month = month(date, abbr = F, label = T),
+                             weekday = wday(date, label = T, abbr = F))
 
 saveRDS(incomparable_master, "data/incomparable_master.rds")
 
