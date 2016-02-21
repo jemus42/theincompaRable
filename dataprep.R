@@ -53,18 +53,18 @@ incomparable_master <- bind_rows(incomparable, robot, teevee, gameshow, tvtm, tp
 
 saveRDS(incomparable_master, "data/incomparable_master.rds")
 
-#### Quick check ####
-incomparable_master %>% group_by(podcast) %>%
-  summarize(episodes = length(unique(number)),
-            hosts_unique = length(unique(host)),
-            guests   = length(guest),
-            guests_unique = length(unique(guest)),
-            hours    = round(sum(duration)/60, 2),
-            days     = round(hours/60, 2)) %>%
-  arrange(desc(episodes))
-
 #### Spreading guests ####
 incomparable_master_wide <- incomparable_master %>%
   group_by(title) %>%
   mutate(guest_position = paste("guest_", 1:length(guest))) %>%
   spread(key = guest_position, value = guest)
+
+saveRDS(incomparable_master_wide, "data/incomparable_master_wide.rds")
+
+#### Quick tets ####
+incomparable_master_wide %>% group_by(podcast) %>%
+  summarize(episodes = length(unique(number)),
+            hosts_unique = length(unique(host)),
+            hours    = round(sum(duration)/60, 2),
+            days     = round(hours/60, 2)) %>%
+  arrange(desc(episodes))
