@@ -39,6 +39,13 @@ opts_knit$set(width = 90)
 incomparable <- readRDS("data/incomparable.rds") %>%
   select(number, date, year, month, weekday, duration, category, title, topic, host, guest)
 
+incomparable_wide <- incomparable %>%
+                      group_by(number) %>%
+                      mutate(guest_position = paste("guest_", 1:length(guest))) %>%
+                      spread(key = guest_position, value = guest) %>%
+                      unite(guests, contains("guest"), sep = ", ") %>%
+                      mutate(guests = str_replace_all(guests, ", NA", "")) %>%
+                      ungroup
 ## labels ##
 duration_mins <- "Duration (mins)"
 ```
@@ -57,23 +64,7 @@ And now my analysis begins.
 
 # Full Data in a Boring Table
 
-It's not so boring if you consider the filterable columns, after all.
-
-```{r fulltable}
-incomparable_wide <- incomparable %>%
-  group_by(number) %>%
-  mutate(guest_position = paste("guest_", 1:length(guest))) %>%
-  spread(key = guest_position, value = guest) %>%
-  unite(guests, contains("guest"), sep = ", ") %>%
-  mutate(guests = str_replace_all(guests, ", NA", "")) %>%
-  ungroup
-
-incomparable_wide %>%
-  datatable(filter = "top", options = list(pageLength = 5, autoWidth = TRUE)) %>%
-  formatDate(columns = "date", method = "toLocaleDateString") %>%
-  formatRound(columns = "duration", digits = 2)
-```
-
+[Moved here](http://rpubs.com/jemus42/incomparable-raw)
 
 # Episodes Counts
 
