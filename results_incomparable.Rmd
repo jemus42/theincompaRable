@@ -18,7 +18,7 @@ library(lubridate)
 library(tidyr)
 library(DT)
 library(formattable)
-library(svglite)
+#library(svglite)
 
 ## Global options
 options(max.print = "75")
@@ -28,9 +28,10 @@ opts_chunk$set(echo    = FALSE,
                tidy    = TRUE,
                comment = NA,
                message = FALSE,
-               warning = FALSE,
-               dev = "svglite",
-               fig.ext = ".svg")
+               warning = FALSE
+             # dev = "svglite",
+             # fig.ext = ".svg"
+             )
 opts_knit$set(width = 90)
 
 incomparable <- readRDS("data/incomparable.rds")
@@ -40,6 +41,9 @@ incomparable %<>%
          month = month(date, abbr = F, label = T),
          weekday = wday(date, label = T, abbr = F)) %>%
   select(number, date, year, month, weekday, duration, title, host, guest)
+
+## labels ##
+duration_mins <- "Duration (mins)"
 ```
 
 # Introduction
@@ -51,20 +55,30 @@ Jason replied [he could get more metadata if I liked](https://twitter.com/jsnell
 A short time after that, [Jason delivered magnificiently](https://twitter.com/jsnell/status/700882298795765761).  
 And now my analysis begins.
 
-# Episodes in General
+# Episodes Counts
 
-```{r episodes_month}
+## Episodes per Month / Year
+
+```{r episodes_monthyear}
 incomparable %>%
   mutate(month = factor(month, levels = rev(levels(month)))) %>%
   ggplot(aes(x = month)) +
   geom_bar() +
+  facet_grid(.~year) +
   coord_flip() +
-  facet_wrap(~year, ncol = 3)
+  labs(y = "# of Episodes", x = "") +
+  theme_bw()
+```
 
+## Episodes per Month
+
+```{r episodes_month}
 incomparable %>%
   ggplot(aes(x = month)) +
   geom_bar() +
-  facet_grid(year~.)
+  labs(y = "# of Episodes", x = "") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, vjust = .5))
 ```
 
 # Runtime
@@ -73,13 +87,13 @@ incomparable %>%
 ggplot(data = incomparable, aes(x = duration)) +
   geom_histogram() +
   labs(title = "The Incomparable Podcast\nShow Duration",
-       x = "Duration (min)") +
+       x = duration_mins) +
   theme_bw()
 
 ggplot(data = incomparable, aes(x = number, y = duration, colour = host)) +
   geom_point() +
   labs(title = "The Incomparable Podcast\nShow Duration",
-       x = "Episode #", y = "Duration (min)") +
+       x = "Episode #", y = duration_mins) +
   theme_bw()
 ```
 
@@ -89,8 +103,8 @@ ggplot(data = incomparable, aes(x = number, y = duration, colour = host)) +
 ggplot(data = incomparable, aes(x = reorder(host, duration), y = duration)) +
   geom_boxplot() +
   coord_flip() +
-  labs(title = "The Incomparable Podcast\nShow Duration by Primary Host",
-       x = "Host (first listed)", y = "Duration (min)") +
+  labs(title = "",
+       x = "Host (first listed)", y = duration_mins) +
   theme_bw()
 ```
 
@@ -100,26 +114,31 @@ ggplot(data = incomparable, aes(x = reorder(host, duration), y = duration)) +
 
 ```{r runtime_years}
 ggplot(data = incomparable, aes(x = year, y = duration)) +
-  geom_boxplot()
+  geom_boxplot() +
+  labs(x = "", y = duration_mins) +
+  theme_bw()
 ```
 
 ### Over Years/Months
 
-```{r runtime_yearmonth}
+```{r runtime_yearmonth, fig.height=8}
 incomparable %>%
   mutate(month = factor(month, levels = rev(levels(month)))) %>%
   ggplot(aes(x = month, y = duration)) +
   geom_boxplot() +
   coord_flip() +
-  facet_wrap(~year, ncol = 3)
-
+  facet_wrap(~year, ncol = 3) +
+  theme_bw() +
+  labs(y = duration_mins, x = "")
 ```
 
 ### Weekdays
 
 ```{r runtime_wday}
 ggplot(data = incomparable, aes(x = weekday, y = duration)) +
-  geom_boxplot()
+  geom_boxplot() +
+  labs(x = "", y = duration_mins) +
+  theme_bw()
 ```
 
 # Guests
