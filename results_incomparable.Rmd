@@ -19,6 +19,7 @@ library(tidyr)
 library(DT)
 library(formattable)
 #library(svglite)
+library(viridis)
 
 ## Global options
 options(max.print = "75")
@@ -37,14 +38,14 @@ opts_knit$set(width = 90)
 incomparable <- readRDS("data/incomparable.rds")
 
 incomparable %<>% 
-  mutate(year = as.factor(year(date)),
-         month = month(date, abbr = F, label = T),
-         weekday = wday(date, label = T, abbr = F)) %>%
   select(number, date, year, month, weekday, duration, title, host, guest)
 
 ## labels ##
 duration_mins <- "Duration (mins)"
 ```
+
+Note: This is a work in progress, and thise document is only a preview.  
+I have **a lot** in mind for this project, but I *really really should be studying* right now.
 
 # Introduction
 
@@ -54,6 +55,21 @@ I was happy to [receive his .numbers file](https://twitter.com/jsnell/status/700
 Jason replied [he could get more metadata if I liked](https://twitter.com/jsnell/status/700870702367318017) and since I **really really would like** that, I rushed to set up [this repository](https://github.com/jemus42/theincompaRable) and put on my data-pants.  
 A short time after that, [Jason delivered magnificiently](https://twitter.com/jsnell/status/700882298795765761).  
 And now my analysis begins.
+
+# Full Data in a Boring Table
+
+It's not so boring if you consider the filterable columns, after all.
+
+```{r fulltable}
+incomparable %>%
+  group_by(title) %>%
+  mutate(guest_position = paste("guest_", 1:length(guest))) %>%
+  spread(key = guest_position, value = guest) %>%
+  datatable(filter = "top", options = list(pageLength = 5, autoWidth = TRUE)) %>%
+  formatDate(columns = "date", method = "toLocaleDateString") %>%
+  formatRound(columns = "duration", digits = 2)
+```
+
 
 # Episodes Counts
 
@@ -85,15 +101,23 @@ incomparable %>%
 
 ```{r runtime_}
 ggplot(data = incomparable, aes(x = duration)) +
-  geom_histogram() +
+  geom_histogram(aes(fill = ..count..), binwidth = 5, color = "black") +
+  scale_x_continuous(breaks = seq(0, max(incomparable$duration), 25)) +
+  scale_fill_viridis(option = "magma") +
   labs(title = "The Incomparable Podcast\nShow Duration",
        x = duration_mins) +
   theme_bw()
 
-ggplot(data = incomparable, aes(x = number, y = duration, colour = host)) +
+
+hosts <- incomparable %>% group_by(host) %>% tally() %>% arrange(desc(n)) %>% extract2("host")
+incomparable %>%
+  mutate(host = factor(host, levels = hosts, ordered = TRUE)) %>%
+  ggplot(aes(x = number, y = duration, colour = host)) +
+  geom_point(size = 2, color = "black") +
   geom_point() +
   labs(title = "The Incomparable Podcast\nShow Duration",
-       x = "Episode #", y = duration_mins) +
+       x = "Episode #", y = duration_mins, color = "Host") +
+  scale_color_brewer(palette = "Set1") +
   theme_bw()
 ```
 
