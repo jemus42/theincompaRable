@@ -71,7 +71,7 @@ And now my analysis begins.
 ## Episodes per Month / Year
 
 ```{r episodes_monthyear}
-incomparable %>%
+incomparable_wide %>%
   mutate(month = factor(month, levels = rev(levels(month)))) %>%
   ggplot(aes(x = month)) +
   geom_bar() +
@@ -84,8 +84,19 @@ incomparable %>%
 ## Episodes per Month
 
 ```{r episodes_month}
-incomparable %>%
+incomparable_wide %>%
   ggplot(aes(x = month)) +
+  geom_bar() +
+  labs(y = "# of Episodes", x = "") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, vjust = .5))
+```
+
+## Episodes per Year
+
+```{r episodes_year}
+incomparable_wide %>%
+  ggplot(aes(x = year)) +
   geom_bar() +
   labs(y = "# of Episodes", x = "") +
   theme_bw() +
@@ -128,7 +139,7 @@ incomparable_wide %>%
 ## Runtime by Host
 
 ```{r runtime_by_host}
-ggplot(data = incomparable, aes(x = reorder(host, duration), y = duration)) +
+ggplot(data = incomparable_wide, aes(x = reorder(host, duration), y = duration)) +
   geom_boxplot() +
   coord_flip() +
   labs(title = "",
@@ -141,7 +152,7 @@ ggplot(data = incomparable, aes(x = reorder(host, duration), y = duration)) +
 ### Over Years
 
 ```{r runtime_years}
-ggplot(data = incomparable, aes(x = year, y = duration)) +
+ggplot(data = incomparable_wide, aes(x = year, y = duration)) +
   geom_boxplot() +
   labs(x = "", y = duration_mins) +
   theme_bw()
@@ -150,7 +161,7 @@ ggplot(data = incomparable, aes(x = year, y = duration)) +
 ### Over Years/Months
 
 ```{r runtime_yearmonth, fig.height=8}
-incomparable %>%
+incomparable_wide %>%
   mutate(month = factor(month, levels = rev(levels(month)))) %>%
   ggplot(aes(x = month, y = duration)) +
   geom_boxplot() +
@@ -163,7 +174,7 @@ incomparable %>%
 ### Weekdays
 
 ```{r runtime_wday}
-ggplot(data = incomparable, aes(x = weekday, y = duration)) +
+ggplot(data = incomparable_wide, aes(x = weekday, y = duration)) +
   geom_boxplot() +
   labs(x = "", y = duration_mins) +
   theme_bw()
