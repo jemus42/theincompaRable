@@ -135,3 +135,29 @@ get_podcast_topics <- function(urlpartial = "theincomparable"){
   result <- data_frame(number = epnums, category = categories, topic = topics)
   return(result)
 }
+
+#### Getting episode summaries ####
+
+get_podcast_summary <- function(urlpartial = "theincomparable"){
+  require(rvest)
+  require(dplyr)
+  require(stringr)
+
+  url     <- paste0("https://www.theincomparable.com/", urlpartial, "/archive/")
+  entries <- read_html(url) %>%
+    html_nodes(css = "#entry") %>%
+    html_text()
+
+  epnums <- entries %>%
+    str_extract("^\\n\\n\\s*\\d+") %>%
+    str_extract("\\d+") %>%
+    as.numeric()
+
+  summaries <- entries %>%
+    str_replace_all("^(\\W)*\\d+(\\W)*", "") %>%
+    str_replace_all("^.*\\n(\\n+|\\s+)", "") %>%
+    str_replace_all("\\n(\\n+|\\s+|.+|\\w|\\•|\\,|\\d+)+$", "")
+
+  result <- data_frame(number = epnums, summary = summaries)
+  return(result)
+}

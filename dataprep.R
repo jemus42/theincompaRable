@@ -9,7 +9,10 @@ library(DT)
 source("helpers.R")
 
 #### Getting individual show stats ####
-incomparable  <- get_podcast_stats("theincomparable", show_title = "The Incomparable")
+incomparable  <- get_podcast_stats("theincomparable", show_title = "The Incomparable") %>%
+                 full_join(y = get_podcast_topics("theincomparable")) %>%
+                 full_join(y = get_podcast_summary("theincomparable"))
+
 robot         <- get_podcast_stats("robot",           show_title = "Robot or Not")
 gameshow      <- get_podcast_stats("gameshow",        show_title = "Game Show")
 teevee        <- get_podcast_stats("teevee",          show_title = "TeeVee")
