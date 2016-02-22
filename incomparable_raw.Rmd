@@ -1,0 +1,24 @@
+---
+title: 'The Incomparable: Raw Data'
+author: '@Jemus42'
+date: "22 February 2016"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+
+library(dplyr)
+library(DT)
+
+```
+
+```{r, echo=F}
+incomparable_wide <- readRDS("data/incomparable_wide.rds")
+
+incomparable_wide %>%
+  arrange(desc(date)) %>%
+  select(-podcast, -year, -month, -weekday, -summary) %>%
+  datatable(filter = "top", options = list(pageLength = 100), style = "bootstrap") %>%
+  formatDate(columns = "date", method = "toLocaleDateString") %>%
+  formatRound(columns = "duration", digits = 2)
+```
