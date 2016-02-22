@@ -101,3 +101,36 @@ get_podcast_stats <- function(urlpartial = "theincomparable", show_title = "The 
     extract_main_host() %>%
     fix_guests()
 }
+
+#### Getting topics and categories ####
+
+# Returns a data.frame suitable for colbinding
+get_podcast_topics <- function(urlpartial = "theincomparable"){
+  require(rvest)
+  require(dplyr)
+  require(stringr)
+
+  entries <- read_html("https://www.theincomparable.com/theincomparable/archive/") %>%
+    html_nodes(css = "#entry") %>%
+    html_text()
+
+  epnums <- entries %>%
+    str_extract("^\\n\\n\\s*\\d+") %>%
+    str_extract("\\d+") %>%
+    as.numeric()
+
+  categories <- entries %>%
+    str_replace_all("(\\n|\\s)*$", "") %>%
+    str_extract("\\s\\w+$") %>%
+    str_trim("both") %>%
+    str_replace_all("^(minute|minutes|hour)$", "Not provided")
+
+  topics <- entries %>%
+    str_extract(".* •") %>%
+    str_replace_all("•", "") %>%
+    str_replace_all("^\\s$", "Not provided") %>%
+    str_trim("both")
+
+  result <- data_frame(number = epnums, category = categories, topic = topics)
+  return(result)
+}
