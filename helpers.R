@@ -100,7 +100,7 @@ fix_guests <- function(showstats){
     mutate(guest = str_trim(guest, side = "both")) %>%
     select(-position) %>%
     rename(host = host_1) %>%
-    arrange(desc(number))
+    arrange(desc(date))
   return(showstats)
 }
 
