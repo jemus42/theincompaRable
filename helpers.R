@@ -110,7 +110,8 @@ get_podcast_topics <- function(urlpartial = "theincomparable"){
   require(dplyr)
   require(stringr)
 
-  entries <- read_html("https://www.theincomparable.com/theincomparable/archive/") %>%
+  url     <- paste0("https://www.theincomparable.com/", urlpartial, "/archive/")
+  entries <- read_html(url) %>%
     html_nodes(css = "#entry") %>%
     html_text()
 
