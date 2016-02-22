@@ -102,10 +102,9 @@ get_podcast_stats <- function(urlpartial = "theincomparable", show_title = "The 
     fix_guests()
 }
 
-#### Getting topics and categories ####
+#### Getting summaries, topics and categories ####
 
-# Returns a data.frame suitable for colbinding
-get_podcast_topics <- function(urlpartial = "theincomparable"){
+get_podcast_metadata <- function(urlpartial = "theincomparable"){
   require(rvest)
   require(dplyr)
   require(stringr)
@@ -116,9 +115,19 @@ get_podcast_topics <- function(urlpartial = "theincomparable"){
     html_text()
 
   epnums <- entries %>%
-    str_extract("^\\n\\n\\s*\\d+") %>%
-    str_extract("\\d+") %>%
-    as.numeric()
+    str_extract("^\\n\\n\\s*\\d+\\w*") %>%
+    str_extract("\\d+\\w*")
+
+  summaries <- entries %>%
+    str_replace_all("^(\\W)*\\d+(\\W)*", "") %>%
+    str_replace_all("^.*\\n(\\n+|\\s+)", "") %>%
+    str_replace_all("\\n(\\n+|\\s+|.+|\\w|\\•|\\,|\\d+)+$", "")
+
+  titles <- entries %>%
+    str_replace_all("^\\n\\n\\s*\\d+\\w*", "") %>%
+    str_replace_all("^(\\n|\\s)*", "") %>%
+    str_extract("^.*\\n") %>%
+    str_replace_all("\\n", "")
 
   categories <- entries %>%
     str_replace_all("(\\n|\\s)*$", "") %>%
@@ -132,32 +141,7 @@ get_podcast_topics <- function(urlpartial = "theincomparable"){
     str_replace_all("^\\s$", "Not provided") %>%
     str_trim("both")
 
-  result <- data_frame(number = epnums, category = categories, topic = topics)
-  return(result)
-}
-
-#### Getting episode summaries ####
-
-get_podcast_summary <- function(urlpartial = "theincomparable"){
-  require(rvest)
-  require(dplyr)
-  require(stringr)
-
-  url     <- paste0("https://www.theincomparable.com/", urlpartial, "/archive/")
-  entries <- read_html(url) %>%
-    html_nodes(css = "#entry") %>%
-    html_text()
-
-  epnums <- entries %>%
-    str_extract("^\\n\\n\\s*\\d+") %>%
-    str_extract("\\d+") %>%
-    as.numeric()
-
-  summaries <- entries %>%
-    str_replace_all("^(\\W)*\\d+(\\W)*", "") %>%
-    str_replace_all("^.*\\n(\\n+|\\s+)", "") %>%
-    str_replace_all("\\n(\\n+|\\s+|.+|\\w|\\•|\\,|\\d+)+$", "")
-
-  result <- data_frame(number = epnums, summary = summaries)
+  result <- data_frame(number = epnums, title = titles, summary = summaries,
+                       category = categories, topic = topics)
   return(result)
 }

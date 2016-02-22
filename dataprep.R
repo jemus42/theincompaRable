@@ -10,8 +10,8 @@ source("helpers.R")
 
 #### Getting individual show stats ####
 incomparable  <- get_podcast_stats("theincomparable", show_title = "The Incomparable") %>%
-                 full_join(y = get_podcast_topics("theincomparable")) %>%
-                 full_join(y = get_podcast_summary("theincomparable"))
+                 full_join(y = get_podcast_metadata("theincomparable")) %>%
+                 filter(!is.na(podcast))
 
 robot         <- get_podcast_stats("robot",           show_title = "Robot or Not")
 gameshow      <- get_podcast_stats("gameshow",        show_title = "Game Show")
