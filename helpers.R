@@ -111,6 +111,16 @@ get_podcast_stats <- function(urlpartial = "theincomparable", show_title = "The 
     fix_guests()
 }
 
+widen_guests <- function(data) {
+  data %>%
+    group_by(number) %>%
+    mutate(guest_position = paste("guest_", 1:length(guest))) %>%
+    spread(key = guest_position, value = guest) %>%
+    unite(guests, contains("guest"), sep = ", ") %>%
+    mutate(guests = str_replace_all(guests, ", NA", "")) %>%
+    ungroup
+}
+
 #### Getting summaries, topics and categories ####
 
 get_podcast_metadata <- function(urlpartial = "theincomparable"){

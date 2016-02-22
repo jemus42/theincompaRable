@@ -10,17 +10,12 @@ source("helpers.R")
 
 #### Getting individual show stats ####
 incomparable  <- get_podcast_stats("theincomparable", show_title = "The Incomparable") %>%
-                  full_join(y = get_podcast_metadata("theincomparable") %>% select(-title),
+                  select(-title) %>%
+                  full_join(y = get_podcast_metadata("theincomparable"),
                             by = c("number" = "number")) %>%
                   filter(!is.na(podcast))
 
-incomparable_wide <- incomparable %>%
-                      group_by(number) %>%
-                      mutate(guest_position = paste("guest_", 1:length(guest))) %>%
-                      spread(key = guest_position, value = guest) %>%
-                      unite(guests, contains("guest"), sep = ", ") %>%
-                      mutate(guests = str_replace_all(guests, ", NA", "")) %>%
-                      ungroup
+incomparable_wide <- incomparable %>% widen_guests()
 
 robot         <- get_podcast_stats("robot",           show_title = "Robot or Not")
 gameshow      <- get_podcast_stats("gameshow",        show_title = "Game Show")
