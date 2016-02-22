@@ -20,6 +20,7 @@ library(DT)
 library(formattable)
 #library(svglite)
 library(viridis)
+library(stringr)
 
 ## Global options
 options(max.print = "75")
@@ -35,10 +36,8 @@ opts_chunk$set(echo    = FALSE,
              )
 opts_knit$set(width = 90)
 
-incomparable <- readRDS("data/incomparable.rds")
-
-incomparable %<>% 
-  select(number, date, year, month, weekday, duration, title, host, guest)
+incomparable <- readRDS("data/incomparable.rds") %>%
+  select(number, date, year, month, weekday, duration, category, title, topic, host, guest)
 
 ## labels ##
 duration_mins <- "Duration (mins)"
@@ -61,10 +60,15 @@ And now my analysis begins.
 It's not so boring if you consider the filterable columns, after all.
 
 ```{r fulltable}
-incomparable %>%
-  group_by(title) %>%
+incomparable_wide <- incomparable %>%
+  group_by(number) %>%
   mutate(guest_position = paste("guest_", 1:length(guest))) %>%
   spread(key = guest_position, value = guest) %>%
+  unite(guests, contains("guest"), sep = ", ") %>%
+  mutate(guests = str_replace_all(guests, ", NA", "")) %>%
+  ungroup
+
+incomparable_wide %>%
   datatable(filter = "top", options = list(pageLength = 5, autoWidth = TRUE)) %>%
   formatDate(columns = "date", method = "toLocaleDateString") %>%
   formatRound(columns = "duration", digits = 2)
@@ -99,18 +103,27 @@ incomparable %>%
 
 # Runtime
 
-```{r runtime_}
-ggplot(data = incomparable, aes(x = duration)) +
+## Histogram of All Episode Runtimes
+
+```{r runtime_hist}
+ggplot(data = incomparable_wide, aes(x = duration)) +
   geom_histogram(aes(fill = ..count..), binwidth = 5, color = "black") +
   scale_x_continuous(breaks = seq(0, max(incomparable$duration), 25)) +
   scale_fill_viridis(option = "magma") +
   labs(title = "The Incomparable Podcast\nShow Duration",
        x = duration_mins) +
   theme_bw()
+```
 
+## Scatterplot of All Episodes
 
+The episode numbers in this are slightly off, due to [The Summer Superhero Spectacular](http://dump.jemu.name/nuwgL.png), which foiled my plans of representing the episode numbers numerically. I therefore numbered the episodes chronologically, so for example, episode number 258 is the 258th episode aired, but relative to the show's numbering, it's still part of 255.
+
+```{r runtime_scatter}
 hosts <- incomparable %>% group_by(host) %>% tally() %>% arrange(desc(n)) %>% extract2("host")
-incomparable %>%
+incomparable_wide %>% 
+  arrange(date) %>%
+  mutate(number = 1:nrow(.)) %>%
   mutate(host = factor(host, levels = hosts, ordered = TRUE)) %>%
   ggplot(aes(x = number, y = duration, colour = host)) +
   geom_point(size = 2, color = "black") +
@@ -184,7 +197,7 @@ incomparable %>%
   summarize(n = n(), airtime_total = round(sum(duration), 2)) %>%
   arrange(desc(n)) %>%
   ungroup %>%
-  mutate(perc_episodes = round((n/max(incomparable$number)) * 100, 2),
+  mutate(perc_episodes = round((n/length(unique(incomparable$number))) * 100, 2),
          perc_guests    = round((n/sum(n)) * 100, 2),
          perc_airtime = round(airtime_total/sum(incomparable$duration) * 100, 2)) %>%
   select(-airtime_total) %>%

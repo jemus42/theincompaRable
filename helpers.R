@@ -56,6 +56,15 @@ get_initial_stats <- function(urlpartial = "theincomparable", show_title = "The 
   showstats$title  <- str_replace_all(showstats$title, "COMMA", ",")
   showstats$title  <- str_replace_all(showstats$title, "QUOT", "“")
 
+  # Handling the Summer Superhero Spectacular #
+  if (show_title == "The Incomparable" | urlpartial == "theincomparable") {
+    showstats$number[showstats$title == "Summer Superhero Spectacular: Central City Region"] <- "255a"
+    showstats$number[showstats$title == "Summer Superhero Spectacular: Gotham Region"]       <- "255b"
+    showstats$number[showstats$title == "Summer Superhero Spectacular: Metropolis Region"]   <- "255c"
+    showstats$number[showstats$title == "Summer Superhero Spectacular: Latveria Region"]     <- "255d"
+    showstats$number[showstats$title == "Summer Superhero Spectacular: The Aftermath"]       <- "255e"
+  }
+
   return(showstats)
 }
 
