@@ -10,7 +10,8 @@ source("helpers.R")
 
 #### Getting individual show stats ####
 incomparable  <- get_podcast_stats("theincomparable", show_title = "The Incomparable") %>%
-                  full_join(y = get_podcast_metadata("theincomparable"), by = c("number" = "number")) %>%
+                  full_join(y = get_podcast_metadata("theincomparable") %>% select(-title),
+                            by = c("number" = "number")) %>%
                   filter(!is.na(podcast))
 
 incomparable_wide <- incomparable %>%
