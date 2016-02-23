@@ -58,10 +58,3 @@ incomparable_master_wide <- incomparable_master %>%
    widen_people()
 
 cache_podcast_data(incomparable_master_wide)
-
-#### Quick tets ####
-incomparable_master_wide %>% group_by(podcast) %>%
-  summarize(episodes = length(unique(number)),
-            hours    = round(sum(duration)/60, 2),
-            days     = round(hours/60, 2)) %>%
-  arrange(desc(episodes))
