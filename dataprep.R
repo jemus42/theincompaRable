@@ -27,7 +27,7 @@ myke          <- get_podcast_stats("myke",            show_title = "Myke at the 
 ruin          <- get_podcast_stats("ruin",            show_title = "Phil and Lisa Ruin the Movies")
 cartooncast   <- get_podcast_stats("cartooncast",     show_title = "Cartoon Cast")
 pod4ham       <- get_podcast_stats("pod4ham",         show_title = "Pod4Ham")
-#notplaying    <- get_podcast_stats("notplaying",      show_title = "Not Playing")
+notplaying    <- get_podcast_stats("notplaying",      show_title = "Not Playing")
 
 #### Saving files locally ####
 saveRDS(incomparable,      "data/incomparable.rds")

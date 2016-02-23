@@ -134,13 +134,16 @@ get_podcast_metadata <- function(urlpartial = "theincomparable"){
   require(stringr)
 
   url     <- paste0("https://www.theincomparable.com/", urlpartial, "/archive/")
-  entries <- read_html(url) %>%
+
+  archive_parsed <- read_html(url)
+
+  entries <- archive_parsed %>%
     html_nodes(css = "#entry") %>%
     html_text()
 
-  epnums <- entries %>%
-    str_extract("^\\n\\n\\s*\\d+\\w*") %>%
-    str_extract("\\d+\\w*") %>%
+  epnums <- archive_parsed %>%
+    html_nodes(css = ".episode-number") %>%
+    html_text() %>%
     as.character()
 
   summaries <- entries %>%
@@ -148,17 +151,15 @@ get_podcast_metadata <- function(urlpartial = "theincomparable"){
     str_replace_all("^.*\\n(\\n+|\\s+)", "") %>%
     str_replace_all("\\n(\\n+|\\s+|.+|\\w|\\•|\\,|\\d+)+$", "")
 
-  titles <- entries %>%
-    str_replace_all("^\\n\\n\\s*\\d+\\w*", "") %>%
-    str_replace_all("^(\\n|\\s)*", "") %>%
-    str_extract("^.*\\n") %>%
-    str_replace_all("\\n", "")
+  titles <- archive_parsed %>%
+    html_nodes(css = ".entry-title a") %>%
+    html_text()
 
   categories <- entries %>%
     str_replace_all("(\\n|\\s)*$", "") %>%
     str_extract("\\s\\w+$") %>%
     str_trim("both") %>%
-    str_replace_all("^(minute|minutes|hour)$", "Not provided")
+    str_replace_all("^(seconds|minute|minutes|hour)$", "Not provided")
 
   topics <- entries %>%
     str_extract(".* •") %>%
