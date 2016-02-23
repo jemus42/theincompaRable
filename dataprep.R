@@ -30,39 +30,37 @@ pod4ham       <- get_podcast_stats("pod4ham",       show_title = "Pod4Ham")
 notplaying    <- get_podcast_stats("notplaying",    show_title = "Not Playing")
 
 #### Saving files locally ####
-saveRDS(incomparable,      "data/incomparable.rds")
-saveRDS(incomparable_wide, "data/incomparable_wide.rds")
-saveRDS(robot,        "data/robot.rds")
-saveRDS(teevee,       "data/teevee.rds")
-saveRDS(gameshow,     "data/gameshow.rds")
-saveRDS(tvtm,         "data/tvtm.rds")
-saveRDS(tpk,          "data/tpk.rds")
-saveRDS(ump,          "data/ump.rds")
-saveRDS(randomtrek,   "data/randomtrek.rds")
-saveRDS(radio,        "data/radio.rds")
-saveRDS(afoot,        "data/afoot.rds")
-saveRDS(defocused,    "data/defocused.rds")
-saveRDS(lazydoctorwho,"data/lazydoctorwho.rds")
-saveRDS(myke,         "data/myke.rds")
-saveRDS(ruin,         "data/ruin.rds")
-saveRDS(cartooncast,  "data/cartooncast.rds")
-saveRDS(pod4ham,      "data/pod4ham.rds")
-saveRDS(notplaying,   "data/notplaying.rds")
+cache_podcast_data(incomparable)
+cache_podcast_data(incomparable_wide)
+cache_podcast_data(robot)
+cache_podcast_data(teevee)
+cache_podcast_data(gameshow)
+cache_podcast_data(tvtm)
+cache_podcast_data(tpk)
+cache_podcast_data(ump)
+cache_podcast_data(randomtrek)
+cache_podcast_data(radio)
+cache_podcast_data(afoot)
+cache_podcast_data(defocused)
+cache_podcast_data(lazydoctorwho)
+cache_podcast_data(myke)
+cache_podcast_data(ruin)
+cache_podcast_data(cartooncast)
+cache_podcast_data(pod4ham)
+cache_podcast_data(notplaying)
 
 #### Binding the good datasets to a master dataset ####
 incomparable_master <- bind_rows(incomparable, robot, teevee, gameshow, tvtm, tpk, ump,
                                  randomtrek, radio, afoot, defocused, lazydoctorwho, myke,
                                  ruin, cartooncast, pod4ham, notplaying)
 
-saveRDS(incomparable_master, "data/incomparable_master.rds")
+cache_podcast_data(incomparable_master)
 
-#### Spreading guests ####
+#### Spreading guests
 incomparable_master_wide <- incomparable_master %>%
-  group_by(title) %>%
-  mutate(guest_position = paste("guest_", 1:length(guest))) %>%
-  spread(key = guest_position, value = guest)
+  widen_guests()
 
-saveRDS(incomparable_master_wide, "data/incomparable_master_wide.rds")
+cache_podcast_data(incomparable_master_wide, "data/incomparable_master_wide.rds")
 
 #### Quick tets ####
 incomparable_master_wide %>% group_by(podcast) %>%

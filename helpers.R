@@ -1,6 +1,7 @@
 #### Helper functions ####
 
-#### Converting HH:MM:SS or MM:SS to a numeric vector of minutes ####
+#### Utility functions ####
+#### Converting HH:MM:SS or MM:SS to a numeric vector of minutes
 parse_duration <- function(x){
   mins <- sapply(x, function(x){
             if (str_count(x, ":") == 2) {
@@ -31,7 +32,33 @@ parse_podcasts_step1 <- function(showstats) {
   return(showstats)
 }
 
-#### Initial collection of the stats file ####
+#### Spread long format
+widen_guests <- function(data, concatenate = FALSE) {
+  data %<>%
+    group_by(number) %>%
+    mutate(guest_position = paste0("guest_", 1:length(guest))) %>%
+    spread(key = guest_position, value = guest)
+  if (concatenate) {
+    data %<>%
+      unite(guests, contains("guest"), sep = ", ") %>%
+      mutate(guests = str_replace_all(guests, ", NA", "")) %>%
+      ungroup
+  }
+  return(data)
+}
+
+#### Caching
+cache_podcast_data <- function(x, dir = "data", filename = NULL) {
+  if (is.null(filename)){
+    filename <- deparse(substitute(x))
+  }
+  path <- paste0(file.path(dir, filename), ".rds")
+  message("Saving ", filename, " to ", path)
+  saveRDS(x, path)
+}
+
+#### Handling the stats.txt ####
+#### Initial collection of the stats file
 # Thanks a lot, @l3viathan https://twitter.com/L3viathan2142/status/701009923841400833
 get_initial_stats <- function(urlpartial = "theincomparable", show_title = "The Incomparable") {
   require(readr)
@@ -42,8 +69,9 @@ get_initial_stats <- function(urlpartial = "theincomparable", show_title = "The 
     str_replace_all(',(?=[^"]*"(?:[^"]*"[^"]*")*[^"]*$)', "COMMA") %>%
     str_replace_all('"(?=.*")', "QUOT") %>%
     str_replace("QUOT",'"') %>%
-    paste0(collapse = "\n") %>%
-    read_csv(col_names = F, trim_ws = T, col_types = cols(X1 = col_character())) %>%
+    paste0(collapse = "\n") %>% {
+      suppressWarnings(read_csv(file = ., col_names = F, trim_ws = T, col_types = cols(X1 = col_character())))
+    } %>%
     filter(!is.na(X1))
 
   if (ncol(showstats) == 5) {
@@ -59,6 +87,9 @@ get_initial_stats <- function(urlpartial = "theincomparable", show_title = "The 
   return(showstats)
 }
 
+#### Preparations after initital collection of stats.txt ####
+#### Extract host
+# Needs work, see issue #1
 extract_main_host <- function(showstats) {
   showstats %>% separate(host, into = c("host_1", "host_2", "host_3", "host_4"), sep = "(\\s(and)|with)") %>%
     mutate(host_2 = ifelse(is.na(host_2), "None", host_2),
@@ -69,6 +100,7 @@ extract_main_host <- function(showstats) {
     return()
 }
 
+#### Further guest management
 fix_guests <- function(showstats){
   if ("guest1" %in% names(showstats)) {
     showstats %<>% separate(guest1, c("guest1_1", "guest1_2"), sep = " and ")
@@ -95,6 +127,7 @@ fix_guests <- function(showstats){
   return(showstats)
 }
 
+#### Compilation of the above functions in one
 get_podcast_stats <- function(urlpartial = "theincomparable", show_title = "The Incomparable"){
     get_initial_stats(urlpartial, show_title) %>%
     parse_podcasts_step1() %>%
@@ -106,18 +139,8 @@ get_podcast_stats <- function(urlpartial = "theincomparable", show_title = "The 
     filter(!is.na(podcast))
 }
 
-widen_guests <- function(data) {
-  data %>%
-    group_by(number) %>%
-    mutate(guest_position = paste("guest_", 1:length(guest))) %>%
-    spread(key = guest_position, value = guest) %>%
-    unite(guests, contains("guest"), sep = ", ") %>%
-    mutate(guests = str_replace_all(guests, ", NA", "")) %>%
-    ungroup
-}
-
-#### Getting summaries, topics and categories ####
-
+#### Parsing the archive pages ####
+#### Getting summaries, topics and categories
 get_podcast_metadata <- function(urlpartial = "theincomparable"){
   require(rvest)
   require(dplyr)
