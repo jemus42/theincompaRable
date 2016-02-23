@@ -81,11 +81,15 @@ incomparable_wide %>%
   theme_bw()
 ```
 
-## Episodes per Month
+## Average Episode Count per Month
 
 ```{r episodes_month}
 incomparable_wide %>%
-  ggplot(aes(x = month)) +
+  group_by(year, month) %>%
+  tally() %>%
+  group_by(month) %>%
+  summarize(mean = mean(n)) %>%
+  ggplot(aes(x = month, weight = mean)) +
   geom_bar() +
   labs(y = "# of Episodes", x = "") +
   theme_bw() +
