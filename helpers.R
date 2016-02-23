@@ -20,7 +20,7 @@ parse_duration <- function(x){
 }
 
 #### Parse date and times
-parse_podcasts_step1 <- function(showstats) {
+enhance_datetimes <- function(showstats) {
   showstats %<>%
     filter(!is.na(number)) %>%
     mutate(duration = parse_duration(duration),
@@ -90,18 +90,35 @@ get_initial_stats <- function(urlpartial = "theincomparable", show_title = "The 
 #### Preparations after initital collection of stats.txt ####
 #### Extract host
 # Needs work, see issue #1
-extract_main_host <- function(showstats) {
-  showstats %>% separate(host, into = c("host_1", "host_2", "host_3", "host_4"), sep = "(\\s(and)|with)") %>%
-    mutate(host_2 = ifelse(is.na(host_2), "None", host_2),
-           host_1 = str_trim(host_1, "both")) %>%
-    rename(guest_dummy_1 = host_2,
-           guest_dummy_2 = host_3,
-           guest_dummy_3 = host_4) %>%
-    return()
+extract_show_hosts <- function(showstats) {
+  showstats %<>%
+    separate(host, into = c("host_1", "guest_1"), sep = "\\swith\\s") %>%
+    mutate(host_1 = str_trim(host_1, "both"),
+           guest_1 = str_trim(guest_1, "both"))
+
+  if ("host_1" %in% names(showstats) & any(str_detect(showstats$host_1, "\\sand\\s"))) {
+    showstats %<>%
+      separate(host_1, into = c("host_1", "host_2"), sep = "\\sand\\s")
+  }
+  if ("host_2" %in% names(showstats) & any(str_detect(showstats$host_2, "\\sand\\s"), na.rm = T)) {
+    showstats %<>%
+      separate(host_2, into = c("host_2", "host_3"), sep = "\\sand\\s", na.rm = T)
+  }
+  if ("host_3" %in% names(showstats) & any(str_detect(showstats$host_3, "\\sand\\s"), na.rm = T)) {
+    showstats %<>%
+      separate(host_3, into = c("host_3", "host_4"), sep = "\\sand\\s")
+  }
+  return(showstats)
 }
 
 #### Further guest management
-fix_guests <- function(showstats){
+extract_show_guests <- function(showstats){
+  if ("guest_1" %in% names(showstats)) {
+    showstats %<>% separate(guest_1, c("guest1_a", "guest1_b"), sep = " and ")
+  }
+  if ("guest_1b" %in% names(showstats)) {
+    showstats %<>% separate(guest_1b, c("guest1_c", "guest1_d"), sep = " and ")
+  }
   if ("guest1" %in% names(showstats)) {
     showstats %<>% separate(guest1, c("guest1_1", "guest1_2"), sep = " and ")
   }
@@ -119,24 +136,43 @@ fix_guests <- function(showstats){
   }
   showstats %<>%
     gather(position, guest, contains("guest")) %>%
-    filter(!is.na(guest)) %>%
     mutate(guest = str_trim(guest, side = "both")) %>%
     select(-position) %>%
-    rename(host = host_1) %>%
     arrange(desc(date))
   return(showstats)
 }
 
-#### Compilation of the above functions in one
+#### Collapsing the people
+collapse_show_people <- function(showstats) {
+  showstats %<>%
+    gather(host_position, host, contains("host")) %>%
+    gather(role, person, host, guest) %>%
+    select(-host_position) %>%
+    distinct() %>%
+    filter(!is.na(person))
+  return(showstats)
+}
+
+#### Compilation of the above functions in one ####
+handle_people <- function(showstats) {
+  showstats %<>%
+    extract_show_hosts() %>%
+    extract_show_guests() %>%
+    collapse_show_people()
+  return(showstats)
+}
+
 get_podcast_stats <- function(urlpartial = "theincomparable", show_title = "The Incomparable"){
     get_initial_stats(urlpartial, show_title) %>%
-    parse_podcasts_step1() %>%
-    extract_main_host() %>%
-    fix_guests() %>%
+    enhance_datetimes() %>%
+    handle_people() %>%
     select(-title) %>%
     full_join(y = get_podcast_metadata(urlpartial),
               by = c("number" = "number")) %>%
-    filter(!is.na(podcast))
+    filter(!is.na(podcast)) %>%
+    arrange(desc(date)) %>%
+    select(podcast, number, date, year, month, weekday,
+           duration, title, person, role, category, topic, summary)
 }
 
 #### Parsing the archive pages ####
