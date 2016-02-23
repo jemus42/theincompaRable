@@ -32,19 +32,20 @@ enhance_datetimes <- function(showstats) {
   return(showstats)
 }
 
-#### Spread long format
-widen_guests <- function(data, concatenate = FALSE) {
-  data %<>%
-    group_by(number) %>%
-    mutate(guest_position = paste0("guest_", 1:length(guest))) %>%
-    spread(key = guest_position, value = guest)
-  if (concatenate) {
-    data %<>%
-      unite(guests, contains("guest"), sep = ", ") %>%
-      mutate(guests = str_replace_all(guests, ", NA", "")) %>%
-      ungroup
-  }
-  return(data)
+#### Spread long to wide format
+# Only applicable to master dataset
+widen_people <- function(master, concatenate = FALSE) {
+  master %<>%
+    group_by(podcast, number, role) %>%
+    mutate(person_number = paste0("person_", seq_along(person))) %>%
+    spread(person_number, person) %>%
+    unite(persons, starts_with("person_"), sep = ", ") %>%
+    mutate(persons = str_replace_all(persons, ", NA", "")) %>%
+    spread(role, persons) %>%
+    ungroup %>%
+    select(podcast, number, date, year, month, weekday,
+           duration, title, host, guest, category, topic, summary)
+  return(master)
 }
 
 #### Caching

@@ -9,9 +9,7 @@ library(DT)
 source("helpers.R")
 
 #### Getting individual show stats ####
-incomparable      <- get_podcast_stats("theincomparable", show_title = "The Incomparable")
-incomparable_wide <- incomparable %>% widen_guests()
-
+incomparable  <- get_podcast_stats("theincomparable", show_title = "The Incomparable")
 robot         <- get_podcast_stats("robot",         show_title = "Robot or Not")
 gameshow      <- get_podcast_stats("gameshow",      show_title = "Game Show")
 teevee        <- get_podcast_stats("teevee",        show_title = "TeeVee")
@@ -31,7 +29,6 @@ notplaying    <- get_podcast_stats("notplaying",    show_title = "Not Playing")
 
 #### Saving files locally ####
 cache_podcast_data(incomparable)
-cache_podcast_data(incomparable_wide)
 cache_podcast_data(robot)
 cache_podcast_data(teevee)
 cache_podcast_data(gameshow)
@@ -58,14 +55,13 @@ cache_podcast_data(incomparable_master)
 
 #### Spreading guests
 incomparable_master_wide <- incomparable_master %>%
-  widen_guests()
+   widen_people()
 
-cache_podcast_data(incomparable_master_wide, "data/incomparable_master_wide.rds")
+cache_podcast_data(incomparable_master_wide)
 
 #### Quick tets ####
 incomparable_master_wide %>% group_by(podcast) %>%
   summarize(episodes = length(unique(number)),
-            hosts_unique = length(unique(host)),
             hours    = round(sum(duration)/60, 2),
             days     = round(hours/60, 2)) %>%
   arrange(desc(episodes))
