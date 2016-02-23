@@ -64,6 +64,7 @@ get_initial_stats <- function(urlpartial = "theincomparable", show_title = "The 
     showstats$number[showstats$title == "Summer Superhero Spectacular: Latveria Region"]     <- "255d"
     showstats$number[showstats$title == "Summer Superhero Spectacular: The Aftermath"]       <- "255e"
   }
+  showstats$number <- as.character(showstats$number)
 
   return(showstats)
 }
@@ -108,7 +109,11 @@ get_podcast_stats <- function(urlpartial = "theincomparable", show_title = "The 
     get_initial_stats(urlpartial, show_title) %>%
     parse_podcasts_step1() %>%
     extract_main_host() %>%
-    fix_guests()
+    fix_guests() %>%
+    select(-title) %>%
+    full_join(y = get_podcast_metadata(urlpartial),
+              by = c("number" = "number")) %>%
+    filter(!is.na(podcast))
 }
 
 widen_guests <- function(data) {
@@ -135,7 +140,8 @@ get_podcast_metadata <- function(urlpartial = "theincomparable"){
 
   epnums <- entries %>%
     str_extract("^\\n\\n\\s*\\d+\\w*") %>%
-    str_extract("\\d+\\w*")
+    str_extract("\\d+\\w*") %>%
+    as.character()
 
   summaries <- entries %>%
     str_replace_all("^(\\W)*\\d+(\\W)*", "") %>%
