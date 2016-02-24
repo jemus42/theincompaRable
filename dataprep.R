@@ -52,18 +52,16 @@ cache_podcast_data(bonustrack)
 incomparable_master <- bind_rows(incomparable, robot, teevee, gameshow, tvtm, tpk, ump,
                                  randomtrek, radio, afoot, defocused, lazydoctorwho, myke,
                                  ruin, cartooncast, pod4ham, notplaying, bonustrack)
-
 cache_podcast_data(incomparable_master)
 
 #### Spreading guests
 incomparable_master_wide <- incomparable_master %>% widen_people()
-
 cache_podcast_data(incomparable_master_wide)
 
-#### Write master set as CSV ####
+#### Write master set as CSV with ; as separator because Numbers likes that more than , ####
 incomparable_master_wide %>%
   mutate(summary = str_replace_all(summary, '\\s"', ' “'),
          summary = str_replace_all(summary, '"(\\s)*', '” '),
          summary = str_trim(summary, "right")) %>%
   arrange(desc(date)) %>%
-  write.table(., "data/incomparable_master_wide.csv", sep = ",", row.names = F)
+  write.table(., "data/incomparable_master_wide.csv", sep = ";", row.names = F)
