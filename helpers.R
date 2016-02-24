@@ -196,17 +196,17 @@ get_podcast_metadata <- function(urlpartial = "theincomparable"){
     html_text() %>%
     as.character()
 
-  summaries <- entries %>%
-    str_replace_all("^(\\W)*\\d+(\\W)*", "") %>%
-    str_replace_all("^.*\\n(\\n+|\\s+)", "") %>%
-    str_replace_all("\\n(\\n+|\\s+|.+|\\w|\\•|\\,|\\d+)+$", "")
+  # summaries <- entries %>%
+  #   str_replace_all("^(\\W)*\\d+(\\W)*", "") %>%
+  #   str_replace_all("^.*\\n(\\n+|\\s+)", "") %>%
+  #   str_replace_all("\\n(\\n+|\\s+|.+|\\w|\\•|\\,|\\d+)+$", "")
 
   # Possibly smarter solution?
-  # summaries <- archive_parsed %>%
-  #   html_nodes(css = ".episode-description") %>%
-  #   html_text() %>%
-  #   str_replace_all("^(\\W)*", "") %>%
-  #   str_replace_all("\\W*$", "")
+  summaries <- archive_parsed %>%
+    html_nodes(css = ".episode-description") %>%
+    html_text() %>%
+    str_replace_all("^(\\W)*", "") %>%
+    str_replace_all("\\W*$", "")
 
   titles <- archive_parsed %>%
     html_nodes(css = ".entry-title a") %>%
