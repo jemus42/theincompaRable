@@ -27,6 +27,7 @@ cartooncast   <- get_podcast_stats("cartooncast",   show_title = "Cartoon Cast")
 pod4ham       <- get_podcast_stats("pod4ham",       show_title = "Pod4Ham")
 notplaying    <- get_podcast_stats("notplaying",    show_title = "Not Playing")
 bonustrack    <- get_podcast_stats("bonustrack",    show_title = "Bonus Track")
+sophomorelit  <- get_podcast_stats("sophomorelit",  show_title = "Sophomore Lit")
 
 #### Saving files locally ####
 cache_podcast_data(incomparable)
@@ -47,11 +48,13 @@ cache_podcast_data(cartooncast)
 cache_podcast_data(pod4ham)
 cache_podcast_data(notplaying)
 cache_podcast_data(bonustrack)
+cache_podcast_data(sophomorelit)
 
 #### Binding the good datasets to a master dataset ####
 incomparable_master <- bind_rows(incomparable, robot, teevee, gameshow, tvtm, tpk, ump,
                                  randomtrek, radio, afoot, defocused, lazydoctorwho, myke,
-                                 ruin, cartooncast, pod4ham, notplaying, bonustrack)
+                                 ruin, cartooncast, pod4ham, notplaying, bonustrack,
+                                 sophomorelit)
 cache_podcast_data(incomparable_master)
 
 #### Spreading guests
