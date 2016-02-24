@@ -1,0 +1,111 @@
+---
+title: "The Incomparable Radio Network — In Numbers"
+date: "`r format(Sys.time(), '%F %R', tz = 'UTC', usetz = T)`"
+author: "Lukas — @jemus42"
+output:
+  rmdformats::readthedown:
+    highlight: kate
+---
+
+```{r knitr_init, echo=FALSE, cache=FALSE, include=FALSE}
+library(knitr)
+library(rmdformats)
+library(readr)
+library(ggplot2)
+library(magrittr)
+library(dplyr)
+library(lubridate)
+library(tidyr)
+library(DT)
+library(formattable)
+#library(svglite)
+library(viridis)
+library(stringr)
+
+
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=FALSE,
+	             cache=FALSE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=75)
+
+incomparable_master      <- readRDS("data/incomparable_master.rds")
+incomparable_master_wide <- readRDS("data/incomparable_master_wide.rds")
+
+#### Plot presets ####
+template_background <- element_rect(fill = "#fcfcfc", color = "#fcfcfc")
+
+theme_background <- 
+  theme(panel.background  = template_background,
+        plot.background   = template_background,
+        legend.background = template_background)
+```
+
+# Shows
+
+## Episodes Count
+
+```{r shows_episodes}
+incomparable_master %>%
+  group_by(podcast) %>%
+  summarize(n = length(unique(number))) %>%
+  ggplot(aes(x = reorder(podcast, n), weight = n)) +
+  geom_bar() +
+  coord_flip() +
+  #geom_text(aes(y = n, label = n), hjust = -.25) +
+  #scale_y_continuous(limits = c(0, 310)) +
+  labs(x = "Show", y = "# of Episodes") +
+  theme_background +
+  theme(panel.grid.major.x = element_line(size = .1, color = "black"))
+
+incomparable_master %>%
+  group_by(podcast) %>%
+  summarize(n = length(unique(number))) %>%
+  arrange(desc(n)) %>%
+  datatable()
+```
+
+
+# People
+
+## Appearances in Total
+
+```{r people_appearances, fig.height=7}
+incomparable_master %>%
+  group_by(role, person) %>%
+  tally %>% 
+  arrange(person) %>%
+  filter(person != "None") %>%
+  group_by(person) %>%
+  mutate(n_total = sum(n)) %>%
+  ungroup() %>%
+  filter(n > 2) %>% 
+  {
+  ggplot(., aes(x = reorder(person, n_total), weight = n, fill = role)) +
+  geom_bar(color = "black") +
+  coord_flip() +
+  scale_y_continuous(breaks = seq(0, max(.$n_total), 50)) +
+  scale_fill_brewer(palette = "Set1") +
+  labs(x = "Person (3 Appearances Minimum)", y = "Episodes", fill = "Role") +
+  theme_background + 
+  theme(legend.position = "top",
+        panel.grid.major.x = element_line(size = .1, color = "black"))
+  }
+
+incomparable_master %>%
+  group_by(role, person) %>%
+  tally %>% 
+  spread(role, n) %>%
+  replace_na(list(guest = 0, host = 0)) %>%
+  mutate(total = guest + host) %>%
+  ungroup() %>%
+  arrange(desc(total)) %>%
+  datatable()
+```
+
+
