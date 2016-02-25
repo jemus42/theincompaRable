@@ -227,10 +227,13 @@ incomparable_master_wide %>%
 
 incomparable_master_wide %>%
   group_by(podcast) %>%
-  summarize(minutes = round(mean(duration), 2),
-            hours = round(mean(duration)/60, 2)) %>%
-  arrange(desc(minutes)) %>%
-  datatable(colnames = c("Show", "Minutes", "Hours"))
+  summarize(min = round(min(duration), 2),
+            mean = round(mean(duration), 2),
+            median = round(median(duration), 2),
+            max = round(max(duration), 2)) %>%
+  arrange(desc(mean)) %>%
+  datatable(colnames = c("Show", "Minum", "Mean", "Median", "Maximum"), 
+            caption = "All values in minutes")
 ```
 
 # People
