@@ -5,6 +5,7 @@ author: "Lukas — @jemus42"
 output:
   rmdformats::readthedown:
     highlight: kate
+    self_contained: false
 ---
 
 ```{r knitr_init, echo=FALSE, cache=FALSE, include=FALSE}
@@ -202,6 +203,22 @@ ggplot(data = incomparable_wide, aes(x = weekday, y = duration)) +
   labs(x = "", y = duration_mins) +
   theme_background +
   theme_breaks_y
+```
+
+# Topics / Categories
+
+```{r categories}
+incomparable_wide %>%
+  group_by(category) %>%
+  tally %>%
+  arrange(desc(n)) %>%
+  ggplot(aes(x = reorder(category, n), weight = n)) +
+  geom_bar() +
+  coord_flip() +
+  labs(title = "The Incomparable Podcast\nBy Categories",
+       x = "Category", y = "# of Episodes") +
+  theme_background +
+  theme_breaks_x
 ```
 
 # Guests
