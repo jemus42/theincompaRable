@@ -36,7 +36,7 @@ opts_chunk$set(echo    = FALSE,
              )
 opts_knit$set(width = 90)
 
-incomparable <- readRDS("data/incomparable.rds") %>%
+incomparable <- readRDS("../data/incomparable.rds") %>%
   select(number, date, year, month, weekday, duration, category, title, topic, host, guest)
 
 incomparable_wide <- incomparable %>%
@@ -126,29 +126,29 @@ ggplot(data = incomparable_wide, aes(x = duration)) +
 The episode numbers in this are slightly off, due to [The Summer Superhero Spectacular](http://dump.jemu.name/nuwgL.png), which foiled my plans of representing the episode numbers numerically. I therefore numbered the episodes chronologically, so for example, episode number 258 is the 258th episode aired, but relative to the show's numbering, it's still part of 255.
 
 ```{r runtime_scatter}
-hosts <- incomparable %>% group_by(host) %>% tally() %>% arrange(desc(n)) %>% extract2("host")
-incomparable_wide %>% 
-  arrange(date) %>%
-  mutate(number = 1:nrow(.)) %>%
-  mutate(host = factor(host, levels = hosts, ordered = TRUE)) %>%
-  ggplot(aes(x = number, y = duration, colour = host)) +
-  geom_point(size = 2, color = "black") +
-  geom_point() +
-  labs(title = "The Incomparable Podcast\nShow Duration",
-       x = "Episode #", y = duration_mins, color = "Host") +
-  scale_color_brewer(palette = "Set1") +
-  theme_bw()
+# hosts <- incomparable %>% group_by(host) %>% tally() %>% arrange(desc(n)) %>% extract2("host")
+# incomparable_wide %>% 
+#   arrange(date) %>%
+#   mutate(number = 1:nrow(.)) %>%
+#   mutate(host = factor(host, levels = hosts, ordered = TRUE)) %>%
+#   ggplot(aes(x = number, y = duration, colour = host)) +
+#   geom_point(size = 2, color = "black") +
+#   geom_point() +
+#   labs(title = "The Incomparable Podcast\nShow Duration",
+#        x = "Episode #", y = duration_mins, color = "Host") +
+#   scale_color_brewer(palette = "Set1") +
+#   theme_bw()
 ```
 
 ## Runtime by Host
 
 ```{r runtime_by_host}
-ggplot(data = incomparable_wide, aes(x = reorder(host, duration), y = duration)) +
-  geom_boxplot() +
-  coord_flip() +
-  labs(title = "",
-       x = "Host (first listed)", y = duration_mins) +
-  theme_bw()
+# ggplot(data = incomparable_wide, aes(x = reorder(host, duration), y = duration)) +
+#   geom_boxplot() +
+#   coord_flip() +
+#   labs(title = "",
+#        x = "Host (first listed)", y = duration_mins) +
+#   theme_bw()
 ```
 
 ## Runtime over Time

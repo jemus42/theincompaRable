@@ -1,7 +1,7 @@
 ---
 title: 'The Incomparable: Raw Data'
 author: '@Jemus42'
-date: "22 February 2016"
+date: "`r format(Sys.time(), '%F %R', tz = 'UTC', usetz = T)`"
 output: html_document
 ---
 ```{r setup, include=FALSE}
@@ -13,11 +13,11 @@ library(DT)
 ```
 
 ```{r, echo=F}
-incomparable_wide <- readRDS("data/incomparable_wide.rds")
+incomparable_master_wide <- readRDS("../data/incomparable_master_wide.rds")
 
-incomparable_wide %>%
+incomparable_master_wide %>%
   arrange(desc(date)) %>%
-  select(-podcast, -year, -month, -weekday, -summary) %>%
+  select(-month, -weekday, -summary) %>%
   datatable(filter = "top", options = list(pageLength = 100), style = "bootstrap") %>%
   formatDate(columns = "date", method = "toLocaleDateString") %>%
   formatRound(columns = "duration", digits = 2)

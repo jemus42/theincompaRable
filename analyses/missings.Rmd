@@ -1,0 +1,42 @@
+---
+title: "The Incomparable: Missing Data"
+author: "Lukas"
+date: "`r format(Sys.time(), '%F %R', tz = 'UTC', usetz = T)`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+
+library(dplyr)
+library(DT)
+
+incomparable_master_wide <- readRDS("../data/incomparable_master_wide.rds")
+```
+
+# List of episodes with missing metadata
+
+Note on what I mean by "topic" and "category":
+![](http://dump.jemu.name/MoVpb.png)
+
+## Missing Category
+
+```{r, echo=F}
+incomparable_master_wide %>% 
+  filter(category == "Not provided") %>%
+  select(podcast, number, date, title, category, topic, host) %>%
+  datatable(filter = "top", options = list(pageLength = 100, autoWidth = TRUE)) %>%
+  formatDate(columns = "date", method = "toLocaleDateString")
+```
+
+## Missing Topic
+
+Yes, I know it's not strictly mandatory, but just in case it was an oversight.
+
+```{r, echo=F}
+incomparable_master_wide %>% 
+  filter(topic == "Not provided") %>%
+  select(podcast, number, date, title, category, topic, host) %>%
+  datatable(filter = "top", options = list(pageLength = 100, autoWidth = TRUE)) %>%
+  formatDate(columns = "date", method = "toLocaleDateString")
+```
