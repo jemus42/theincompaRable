@@ -9,15 +9,22 @@ knitr::opts_chunk$set(echo = F)
 
 library(dplyr)
 library(DT)
-
 ```
 
+# Related Documents
+
+- [The main show](http://stats.jemu.name/theincomparable/results_incomparable.html)
+- [All shows](http://stats.jemu.name/theincomparable/results_incomparable_master.html)
+- [Missing data](http://stats.jemu.name/theincomparable/missings.html)
+
+# All Show Data
+
 ```{r, echo=F}
-incomparable_master_wide <- readRDS("../data/incomparable_master_wide.rds")
+incomparable_master_wide <- readRDS(file.path(Sys.getenv("PROJECT_HOME"), "data/incomparable_master_wide.rds"))
 
 incomparable_master_wide %>%
   arrange(desc(date)) %>%
-  select(-month, -weekday, -summary) %>%
+  select(-month, -weekday) %>%
   datatable(filter = "top", options = list(pageLength = 100), style = "bootstrap") %>%
   formatDate(columns = "date", method = "toLocaleDateString") %>%
   formatRound(columns = "duration", digits = 2)
