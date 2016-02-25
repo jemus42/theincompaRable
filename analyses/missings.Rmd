@@ -14,8 +14,8 @@ knitr::opts_chunk$set(echo = F)
 library(dplyr)
 library(DT)
 
-incomparable_master <- readRDS("../data/incomparable_master.rds")
-incomparable_master_wide <- readRDS("../data/incomparable_master_wide.rds")
+incomparable_master      <- readRDS(file.path(Sys.getenv("PROJECT_HOME"), "data/incomparable_master.rds"))
+incomparable_master_wide <- readRDS(file.path(Sys.getenv("PROJECT_HOME"), "data/incomparable_master_wide.rds"))
 ```
 
 # List of episodes with missing metadata
@@ -27,7 +27,19 @@ All tables are **filterable** and **searchable**, to make things as easy as poss
 
 [Note on what I mean by "topic" and "category"](http://dump.jemu.name/MoVpb.png)
 
-## Missing Category
+## Missing Category and Topic
+
+Assuming that at least one of both should be set.
+
+```{r missing_category_topic, echo=F}
+incomparable_master_wide %>% 
+  filter(topic == "Not provided" & category == "Not provided") %>%
+  select(podcast, number, date, title, category, topic, host) %>%
+  datatable(filter = "top", options = list(pageLength = 5)) %>%
+  formatDate(columns = "date")
+```
+
+### Missing Category
 
 This field doesn't make sense for all shows I guess, but at least for the main show it's quite useful.
 
@@ -39,7 +51,7 @@ incomparable_master_wide %>%
   formatDate(columns = "date")
 ```
 
-## Missing Topic
+### Missing Topic
 
 Yes, I know it's not strictly mandatory, but just in case it was an oversight.
 
@@ -51,16 +63,6 @@ incomparable_master_wide %>%
   formatDate(columns = "date")
 ```
 
-## Missing Category and Topic
-
-
-```{r missing_category_topic, echo=F}
-incomparable_master_wide %>% 
-  filter(topic == "Not provided" & category == "Not provided") %>%
-  select(podcast, number, date, title, category, topic, host) %>%
-  datatable(filter = "top", options = list(pageLength = 5)) %>%
-  formatDate(columns = "date")
-```
 
 ## Shows with only one person listed
 

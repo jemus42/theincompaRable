@@ -37,7 +37,6 @@ opts_chunk$set(echo    = FALSE,
 opts_knit$set(width = 75)
 
 #### Data prep ####
-Sys.setenv(PROJECT_HOME = "/Users/Lukas/repos/incomparable")
 incomparable_master      <- readRDS(file.path(Sys.getenv("PROJECT_HOME"), "data/incomparable_master.rds"))
 incomparable_master_wide <- readRDS(file.path(Sys.getenv("PROJECT_HOME"), "data/incomparable_master_wide.rds"))
 
@@ -276,4 +275,8 @@ incomparable_master %>%
   datatable(colnames = c("Person", "Apperances Total", "As Host", "As Guest"))
 ```
 
+# Acknowledgements
+
+- Thanks to Jason for setting up the `stats.txt` files I parsed for the data.
+- Thanks to [Juba](https://twitter.com/lapply) for the [RMarkdown template](https://github.com/juba/rmdformats)
 
