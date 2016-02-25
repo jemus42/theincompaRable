@@ -36,17 +36,27 @@ opts_chunk$set(echo    = FALSE,
              )
 opts_knit$set(width = 90)
 
-incomparable <- readRDS("../data/incomparable.rds") %>%
-  select(number, date, year, month, weekday, duration, category, title, topic, host, guest)
+incomparable      <- readRDS(file.path(Sys.getenv("PROJECT_HOME"), "/data/incomparable_master.rds")) %>% 
+                     filter(podcast == "The Incomparable")
+incomparable_wide <- readRDS(file.path(Sys.getenv("PROJECT_HOME"), "/data/incomparable_master_wide.rds")) %>% 
+                     filter(podcast == "The Incomparable")
 
-incomparable_wide <- incomparable %>%
-                      group_by(number) %>%
-                      mutate(guest_position = paste("guest_", 1:length(guest))) %>%
-                      spread(key = guest_position, value = guest) %>%
-                      unite(guests, contains("guest"), sep = ", ") %>%
-                      mutate(guests = str_replace_all(guests, ", NA", "")) %>%
-                      ungroup
-## labels ##
+#### Plot presets ####
+template_background <- element_rect(fill = "#fcfcfc", color = "#fcfcfc")
+
+theme_background <- 
+  theme(panel.background  = template_background,
+        plot.background   = template_background,
+        legend.background = template_background)
+
+theme_breaks_x <-
+  theme(panel.grid.major.x = element_line(size = .1, color = "black"),
+        panel.grid.minor.x = element_line(size = .1, color = "black", linetype = "dotted"))
+  
+theme_breaks_y <-   
+  theme(panel.grid.major.y = element_line(size = .1, color = "black"),
+        panel.grid.minor.y = element_line(size = .1, color = "black", linetype = "dotted"))
+
 duration_mins <- "Duration (mins)"
 ```
 
@@ -78,7 +88,8 @@ incomparable_wide %>%
   facet_grid(.~year) +
   coord_flip() +
   labs(y = "# of Episodes", x = "") +
-  theme_bw()
+  theme_background +
+  theme_breaks_x
 ```
 
 ## Average Episode Count per Month
@@ -92,7 +103,8 @@ incomparable_wide %>%
   ggplot(aes(x = month, weight = mean)) +
   geom_bar() +
   labs(y = "# of Episodes", x = "") +
-  theme_bw() +
+  theme_background +
+  theme_breaks_y +
   theme(axis.text.x = element_text(angle = 45, vjust = .5))
 ```
 
@@ -103,7 +115,9 @@ incomparable_wide %>%
   ggplot(aes(x = year)) +
   geom_bar() +
   labs(y = "# of Episodes", x = "") +
-  theme_bw() +
+  scale_y_continuous(breaks = scales::pretty_breaks()) +
+  theme_background +
+  theme_breaks_y +
   theme(axis.text.x = element_text(angle = 45, vjust = .5))
 ```
 
@@ -117,8 +131,9 @@ ggplot(data = incomparable_wide, aes(x = duration)) +
   scale_x_continuous(breaks = seq(0, max(incomparable$duration), 25)) +
   scale_fill_viridis(option = "magma") +
   labs(title = "The Incomparable Podcast\nShow Duration",
-       x = duration_mins) +
-  theme_bw()
+       x = duration_mins, y = "Count", fill = "Count") +
+  theme_background +
+  theme_breaks_y
 ```
 
 ## Scatterplot of All Episodes
@@ -126,29 +141,32 @@ ggplot(data = incomparable_wide, aes(x = duration)) +
 The episode numbers in this are slightly off, due to [The Summer Superhero Spectacular](http://dump.jemu.name/nuwgL.png), which foiled my plans of representing the episode numbers numerically. I therefore numbered the episodes chronologically, so for example, episode number 258 is the 258th episode aired, but relative to the show's numbering, it's still part of 255.
 
 ```{r runtime_scatter}
-# hosts <- incomparable %>% group_by(host) %>% tally() %>% arrange(desc(n)) %>% extract2("host")
-# incomparable_wide %>% 
-#   arrange(date) %>%
-#   mutate(number = 1:nrow(.)) %>%
-#   mutate(host = factor(host, levels = hosts, ordered = TRUE)) %>%
-#   ggplot(aes(x = number, y = duration, colour = host)) +
-#   geom_point(size = 2, color = "black") +
-#   geom_point() +
-#   labs(title = "The Incomparable Podcast\nShow Duration",
-#        x = "Episode #", y = duration_mins, color = "Host") +
-#   scale_color_brewer(palette = "Set1") +
-#   theme_bw()
+hosts <- incomparable_wide %>% group_by(host) %>% tally() %>% arrange(desc(n)) %>% extract2("host")
+incomparable_wide %>%
+  arrange(date) %>%
+  mutate(number = 1:nrow(.)) %>%
+  mutate(host = factor(host, levels = hosts, ordered = TRUE)) %>%
+  ggplot(aes(x = number, y = duration, colour = host)) +
+  geom_point(size = 2, color = "black") +
+  geom_point() +
+  labs(title = "The Incomparable Podcast\nShow Duration",
+       x = "Episode #", y = duration_mins, color = "Host") +
+  scale_color_brewer(palette = "Set1") +
+  theme_background +
+  theme_breaks_y +
+  theme_breaks_x
 ```
 
 ## Runtime by Host
 
 ```{r runtime_by_host}
-# ggplot(data = incomparable_wide, aes(x = reorder(host, duration), y = duration)) +
-#   geom_boxplot() +
-#   coord_flip() +
-#   labs(title = "",
-#        x = "Host (first listed)", y = duration_mins) +
-#   theme_bw()
+ggplot(data = incomparable_wide, aes(x = reorder(host, duration), y = duration)) +
+  geom_boxplot() +
+  coord_flip() +
+  labs(title = "",
+       x = "Host (first listed)", y = duration_mins) +
+  theme_background +
+  theme_breaks_x
 ```
 
 ## Runtime over Time
@@ -159,7 +177,8 @@ The episode numbers in this are slightly off, due to [The Summer Superhero Spect
 ggplot(data = incomparable_wide, aes(x = year, y = duration)) +
   geom_boxplot() +
   labs(x = "", y = duration_mins) +
-  theme_bw()
+  theme_background +
+  theme_breaks_y
 ```
 
 ### Over Years/Months
@@ -171,8 +190,8 @@ incomparable_wide %>%
   geom_boxplot() +
   coord_flip() +
   facet_wrap(~year, ncol = 3) +
-  theme_bw() +
-  labs(y = duration_mins, x = "")
+  labs(y = duration_mins, x = "") +
+  theme_background
 ```
 
 ### Weekdays
@@ -181,34 +200,38 @@ incomparable_wide %>%
 ggplot(data = incomparable_wide, aes(x = weekday, y = duration)) +
   geom_boxplot() +
   labs(x = "", y = duration_mins) +
-  theme_bw()
+  theme_background +
+  theme_breaks_y
 ```
 
 # Guests
 
 ```{r guests, fig.height=9}
 incomparable %>%
-  group_by(guest) %>%
+  filter(role == "guest") %>%
+  group_by(person) %>%
   tally %>%
   arrange(desc(n)) %>%
-  ggplot(aes(x = reorder(guest, n), weight = n)) +
+  ggplot(aes(x = reorder(person, n), weight = n)) +
   geom_bar() +
   coord_flip() +
+  scale_y_continuous(breaks = seq(0, 1000, 20),
+                     minor_breaks = seq(0, 1000, 10)) +
   labs(title = "The Incomparable Podcast\nGuest Appearances",
-       x = "Guest", y = "# of Episodes") +
-  theme_bw()
+       x = "Guest", y = "# of Appearances") +
+  theme_background +
+  theme_breaks_x
 
 incomparable %>%
-  group_by(guest) %>%
+  filter(role == "guest") %>%
+  group_by(person) %>%
   summarize(n = n(), airtime_total = round(sum(duration), 2)) %>%
   arrange(desc(n)) %>%
   ungroup %>%
   mutate(perc_episodes = round((n/length(unique(incomparable$number))) * 100, 2),
-         perc_guests    = round((n/sum(n)) * 100, 2),
-         perc_airtime = round(airtime_total/sum(incomparable$duration) * 100, 2)) %>%
+         perc_guests   = round((n/sum(n)) * 100, 2)) %>%
   select(-airtime_total) %>%
-  datatable(colnames = c("Guest", "Episodes", "Episode %", 
-                         "% of Guests", "% of Guests by Airtime"))
+  datatable(colnames = c("Guest", "Episodes", "Episode %", "% of Guests"))
 ```
 
 # Acknowledgements
