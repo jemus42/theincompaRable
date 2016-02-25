@@ -73,10 +73,6 @@ Jason replied [he could get more metadata if I liked](https://twitter.com/jsnell
 A short time after that, [Jason delivered magnificiently](https://twitter.com/jsnell/status/700882298795765761).  
 And now my analysis begins.
 
-# Full Data in a Boring Table
-
-[Moved here](http://rpubs.com/jemus42/incomparable-raw)
-
 # Episodes Counts
 
 ## Episodes per Month / Year
