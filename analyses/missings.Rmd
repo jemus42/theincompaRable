@@ -1,8 +1,11 @@
 ---
 title: "The Incomparable: Missing Data"
-author: "Lukas"
+author: "@Jemus42"
 date: "`r format(Sys.time(), '%F %R', tz = 'UTC', usetz = T)`"
-output: html_document
+output: 
+  html_document: 
+    number_sections: yes
+    toc: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -11,32 +14,71 @@ knitr::opts_chunk$set(echo = F)
 library(dplyr)
 library(DT)
 
+incomparable_master <- readRDS("../data/incomparable_master.rds")
 incomparable_master_wide <- readRDS("../data/incomparable_master_wide.rds")
 ```
 
 # List of episodes with missing metadata
 
-Note on what I mean by "topic" and "category":
-![](http://dump.jemu.name/MoVpb.png)
+This is page is a side effect of my attempts of compiling all of The Incomparable in data.  
+During that process I noticed a few inconsistencies or oversights here and there, and so I thought I could compile them all in nice tables, so oversights can be fixed if so desired.  
+
+All tables are **filterable** and **searchable**, to make things as easy as possible.
+
+[Note on what I mean by "topic" and "category"](http://dump.jemu.name/MoVpb.png)
 
 ## Missing Category
 
-```{r, echo=F}
+This field doesn't make sense for all shows I guess, but at least for the main show it's quite useful.
+
+```{r missing_category, echo=F}
 incomparable_master_wide %>% 
   filter(category == "Not provided") %>%
   select(podcast, number, date, title, category, topic, host) %>%
-  datatable(filter = "top", options = list(pageLength = 100, autoWidth = TRUE)) %>%
-  formatDate(columns = "date", method = "toLocaleDateString")
+  datatable(filter = "top", options = list(pageLength = 5)) %>%
+  formatDate(columns = "date")
 ```
 
 ## Missing Topic
 
 Yes, I know it's not strictly mandatory, but just in case it was an oversight.
 
-```{r, echo=F}
+```{r missing_topic, echo=F}
 incomparable_master_wide %>% 
   filter(topic == "Not provided") %>%
   select(podcast, number, date, title, category, topic, host) %>%
-  datatable(filter = "top", options = list(pageLength = 100, autoWidth = TRUE)) %>%
-  formatDate(columns = "date", method = "toLocaleDateString")
+  datatable(filter = "top", options = list(pageLength = 5)) %>%
+  formatDate(columns = "date")
 ```
+
+## Missing Category and Topic
+
+
+```{r missing_category_topic, echo=F}
+incomparable_master_wide %>% 
+  filter(topic == "Not provided" & category == "Not provided") %>%
+  select(podcast, number, date, title, category, topic, host) %>%
+  datatable(filter = "top", options = list(pageLength = 5)) %>%
+  formatDate(columns = "date")
+```
+
+## Shows with only one person listed
+
+Yes, some episodes only feature one person, like *Summer Superhero Spectacular: The Aftermath* (**Incomparable #255e**), but overall it's not the norm, and I'm pretty sure **Incomparable 255c** has more than one person talking in it, or I'm hearing voices.
+
+As for the **Radio Theatre**:  
+I don't know if all participants or only the writer should be listed, but since it's not my place to judge anyway, I'm including it in this table for now.
+
+
+```{r missing_people, echo=F}
+incomparable_master %>%
+  group_by(podcast, number) %>%
+  mutate(people_count = length(person)) %>%
+  ungroup %>%
+  filter(people_count <= 1) %>%
+  select(podcast, number, date, title, role, person) %>%
+  arrange(desc(date)) %>%
+  datatable(filter = "top", options = list(pageLength = 10)) %>%
+  formatDate(columns = "date")
+```
+
