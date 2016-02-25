@@ -1,6 +1,7 @@
 #! /bin/zsh
 
 PATH=$PATH:/Users/Lukas/repos/jemus42/syncbin/bin/
+PROJECT_HOME='$HOME/repos/incomparable/'
 
 cd analyses
 
