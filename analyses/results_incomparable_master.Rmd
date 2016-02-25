@@ -154,6 +154,20 @@ incomparable_master %>%
 
 # Runtimes
 
+## Overall Runtimes
+
+```{r runtimes_histogram}
+ggplot(incomparable_master_wide, aes(x = duration, fill = podcast)) +
+geom_histogram(binwidth = 5) +
+scale_x_continuous(breaks = seq(0, 1000, 20),
+                   minor_breaks = seq(0, 1000, 5)) +
+scale_fill_viridis(discrete = T) +
+labs(x = "Duration (mins)", y = "Count", fill = "Show") +
+theme_background +
+theme_breaks_x +
+theme(legend.key.size = unit(.5, "cm"))
+```
+
 ## Total Runtime by Show
 
 ```{r runtimes_total_show}
