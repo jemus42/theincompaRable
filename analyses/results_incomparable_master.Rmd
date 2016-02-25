@@ -206,6 +206,25 @@ incomparable_master_wide %>%
     theme_breaks_x
   }
 
+incomparable_master_wide %>% 
+  group_by(podcast) %>%
+  mutate(duration_avg = mean(duration)) %>%
+  {
+    ggplot(., aes(x = reorder(podcast, duration_avg), y = duration)) +
+    geom_violin() +
+    stat_summary(fun.y = mean, geom = "point", color = "black", size = 2) +
+    stat_summary(fun.y = mean, geom = "point", color = "red") +
+    geom_hline(aes(yintercept = mean(duration)), linetype = "dotted", color = "red") +
+    coord_flip() + 
+    scale_y_continuous(breaks = seq(0, max(.$duration) + 30, 15), 
+                     minor_breaks = seq(0, max(.$duration) + 30, 5)) +
+    expand_limits(y = 0) +
+    labs(title = "Show Runtimes\nas Violin Plot and Global Average (red dotted)",
+         x = "Show", y = "Runtime (mins)") +
+    theme_background +
+    theme_breaks_x
+  }
+
 incomparable_master_wide %>%
   group_by(podcast) %>%
   summarize(minutes = round(mean(duration), 2),
