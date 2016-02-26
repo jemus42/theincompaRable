@@ -14,8 +14,8 @@ knitr::opts_chunk$set(echo = F)
 library(dplyr)
 library(DT)
 
-incomparable_master      <- readRDS(file.path(Sys.getenv("PROJECT_HOME"), "data/incomparable_master.rds"))
-incomparable_master_wide <- readRDS(file.path(Sys.getenv("PROJECT_HOME"), "data/incomparable_master_wide.rds"))
+incomparable_master      <- readRDS("/Users/Lukas/repos/incomparable/data/incomparable_master.rds")
+incomparable_master_wide <- readRDS("/Users/Lukas/repos/incomparable/data/incomparable_master_wide.rds")
 ```
 
 # List of episodes with missing metadata

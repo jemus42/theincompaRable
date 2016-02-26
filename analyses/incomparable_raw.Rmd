@@ -20,7 +20,7 @@ library(DT)
 # All Show Data
 
 ```{r, echo=F}
-incomparable_master_wide <- readRDS(file.path(Sys.getenv("PROJECT_HOME"), "data/incomparable_master_wide.rds"))
+incomparable_master_wide <- readRDS("/Users/Lukas/repos/incomparable/data/incomparable_master_wide.rds")
 
 incomparable_master_wide %>%
   arrange(desc(date)) %>%
