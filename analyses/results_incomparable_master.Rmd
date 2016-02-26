@@ -24,6 +24,7 @@ library(scales)
 library(viridis)
 library(stringr)
 library(tadaatoolbox)
+library(ggrepel)
 
 #### Global options ####
 options(max.print = "75")
@@ -68,6 +69,8 @@ theme_breaks_y <-
 
 [The Incomparable Radio Network](https://www.theincomparable.com/) spans **`r incomparable_master_wide$podcast %>% unique %>% length()`** shows (including the [Bonus Track](https://www.theincomparable.com/bonustrack/), but *not* including the [Greatest Hits feed](https://www.theincomparable.com/best)), **`r incomparable_master$person %>% unique %>% length()`** people and a combined runtime of over **`r incomparable_master_wide$duration %>% sum() %>% divide_by(60) %>% divide_by(24) %>% floor`** days.  
 That's quite a lot.
+
+See [the repository](https://github.com/jemus42/theincompaRable#about) for a note on how this analysis started.
 
 # Overview
 
@@ -149,6 +152,30 @@ incomparable_master %>%
   summarize(n = length(unique(number))) %>%
   arrange(desc(n)) %>%
   datatable(colnames = c("Show", "Year", "# of Episodes"))
+```
+
+## Episodes per Week
+
+```{r show_episodes_lifetime_ep}
+incomparable_master_wide %>%
+  filter(year >= 2010) %>%
+  group_by(podcast) %>%
+  summarize(first_aired = min(date),
+            last_aired = max(date),
+            episodes = length(unique(number)),
+            duration = sum(duration)) %>%
+  mutate(lifetime_weeks = as.numeric(difftime(last_aired, first_aired, units = "weeks")),
+         episodes_per_week = episodes / lifetime_weeks,
+         duration_per_week = duration / lifetime_weeks) %>%
+  ggplot(aes(x = lifetime_weeks, y = episodes_per_week)) +
+  geom_point() +
+  geom_label_repel(aes(label = podcast)) +
+  geom_hline(aes(yintercept = mean(episodes_per_week)), linetype = "dotted", color = "blue") +
+  geom_vline(aes(xintercept = mean(lifetime_weeks)), linetype = "dotted", color = "blue") +
+  labs(title = "The Incomparable Radio Network\nShow Lifetime and Weekly Output\n(2010 - Now)",
+       x = "Lifetime of Podcast in Weeks", y = "Average # of Episodes per Week") +
+    theme_background +
+    theme_breaks_y
 ```
 
 
