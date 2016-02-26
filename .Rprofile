@@ -1,1 +1,1 @@
-Sys.setenv(PROJECT_HOME = '$HOME/repos/incomparable/')
+Sys.setenv(PROJECT_HOME = '/Users/Lukas/repos/incomparable/')
