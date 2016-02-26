@@ -67,10 +67,11 @@ theme_breaks_y <-
 
 ```
 
-[The Incomparable Radio Network](https://www.theincomparable.com/) spans **`r incomparable_master_wide$podcast %>% unique %>% length()`** shows (including the [Bonus Track](https://www.theincomparable.com/bonustrack/), but *not* including the [Greatest Hits feed](https://www.theincomparable.com/best)), **`r incomparable_master$person %>% unique %>% length()`** people and a combined runtime of over **`r incomparable_master_wide$duration %>% sum() %>% divide_by(60) %>% divide_by(24) %>% floor`** days.  
+[The Incomparable Radio Network](https://www.theincomparable.com/) spans **`r incomparable_master_wide$podcast %>% unique %>% length()`** shows (including the [Bonus Track](https://www.theincomparable.com/bonustrack/), but *not* including the [Greatest Hits feed](https://www.theincomparable.com/best)), **`r incomparable_master$person %>% unique %>% length()`** people and a combined runtime of over **`r incomparable_master_wide$duration %>% sum() %>% divide_by(60) %>% divide_by(24) %>% floor`** days spread across **`r nrow(incomparable_master_wide)` episodes**.  
 That's quite a lot.
 
-See [the repository](https://github.com/jemus42/theincompaRable#about) for a note on how this analysis started.
+This data is up to date up until **`r max(incomparable_master_wide$date)`** and updates automagically whenever I tell it to.  
+See [the repository](https://github.com/jemus42/theincompaRable#about) for a note on how this analysis started. And the code. And stuff.
 
 # Overview
 
