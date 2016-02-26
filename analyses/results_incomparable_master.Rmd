@@ -170,6 +170,7 @@ incomparable_master_wide %>%
     ggplot(data = ., aes(x = episodes_per_week, label = podcast)) +
     geom_histogram(binwidth = .05, fill = "lightblue", color = "black") +
     geom_label_repel(y = 1, force = 6, size = 3) +
+    geom_vline(xintercept = mean(.$episodes_per_week), linetype = "dotted") +
     labs(title = "The Incomparable Radio Network\nShow Lifetime and Weekly Output\n(2010 - Now)",
          x = "Average # of Episodes per Week", y = "Count") +
     theme_background +
