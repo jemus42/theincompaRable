@@ -163,6 +163,24 @@ incomparable_master_wide %>%
   group_by(podcast) %>%
   summarize(first_aired = min(date),
             last_aired = max(date),
+            episodes = length(unique(number))) %>%
+  mutate(lifetime_weeks = as.numeric(difftime(last_aired, first_aired, units = "weeks")),
+         episodes_per_week = episodes / lifetime_weeks) %>%
+  {
+    ggplot(data = ., aes(x = episodes_per_week, label = podcast)) +
+    geom_histogram(binwidth = .05, fill = "lightblue", color = "black") +
+    geom_label_repel(y = 1, force = 6, size = 3) +
+    labs(title = "The Incomparable Radio Network\nShow Lifetime and Weekly Output\n(2010 - Now)",
+         x = "Average # of Episodes per Week", y = "Count") +
+    theme_background +
+    theme_breaks_y
+  }
+
+incomparable_master_wide %>%
+  filter(year >= 2010) %>%
+  group_by(podcast) %>%
+  summarize(first_aired = min(date),
+            last_aired = max(date),
             episodes = length(unique(number)),
             duration = sum(duration)) %>%
   mutate(lifetime_weeks = as.numeric(difftime(last_aired, first_aired, units = "weeks")),
@@ -170,7 +188,7 @@ incomparable_master_wide %>%
          duration_per_week = duration / lifetime_weeks) %>%
   ggplot(aes(x = lifetime_weeks, y = episodes_per_week)) +
   geom_point() +
-  geom_label_repel(aes(label = podcast)) +
+  geom_label_repel(aes(label = podcast), size = 3) +
   geom_hline(aes(yintercept = mean(episodes_per_week)), linetype = "dotted", color = "blue") +
   geom_vline(aes(xintercept = mean(lifetime_weeks)), linetype = "dotted", color = "blue") +
   labs(title = "The Incomparable Radio Network\nShow Lifetime and Weekly Output\n(2010 - Now)",
