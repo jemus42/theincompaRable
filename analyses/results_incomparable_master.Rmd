@@ -176,6 +176,22 @@ incomparable_master_wide %>%
        x = "Lifetime of Podcast in Weeks", y = "Average # of Episodes per Week") +
     theme_background +
     theme_breaks_y
+
+incomparable_master_wide %>%
+  filter(year >= 2010) %>%
+  group_by(podcast) %>%
+  summarize(first_aired = min(date),
+            last_aired = max(date),
+            episodes = length(unique(number)),
+            duration = sum(duration)) %>%
+  mutate(lifetime_weeks = as.numeric(difftime(last_aired, first_aired, units = "weeks")),
+         episodes_per_week = episodes / lifetime_weeks,
+         duration_per_week = duration / lifetime_weeks) %>%
+  datatable(colnames = c("Show", "First Aired", "Last Aired", 
+                         "# of Episodes", "Duration (min)", "Age (weeks)", 
+                         "Episodes per Week", "Duration per Week")) %>%
+  formatDate(columns = c(2, 3)) %>%
+  formatRound(columns = 4:8)
 ```
 
 
