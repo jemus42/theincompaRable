@@ -1,0 +1,46 @@
+---
+title: "The Incomparable — Discarded Plots"
+author: '@Jemus42'
+date: "`r format(Sys.time(), '%F %R', tz = 'UTC', usetz = T)`"
+output:
+  html_document:
+    fig_height: 9
+    fig_width: 13
+    self_contained: no
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+
+library(dplyr)
+library(ggplot2)
+library(scales)
+library(DT)
+library(lubridate)
+
+incomparable_master      <- readRDS("/Users/Lukas/repos/incomparable/data/incomparable_master.rds")
+incomparable_master_wide <- readRDS("/Users/Lukas/repos/incomparable/data/incomparable_master_wide.rds")
+```
+
+These plots very either to convoluted or not nice enough for the final analysis, but complex enough to warrant being kept somewhere.
+
+# Weeklyness
+
+```{r}
+incomparable_master_wide %>%
+      filter(year == 2015) %>%
+      select(-summary) %>%
+      mutate(week = week(date)) %>%
+      group_by(podcast, year, week) %>%
+      tally %>%
+      ggplot(aes(x = week, weight = n)) +
+      geom_bar() +
+      scale_y_continuous(breaks = seq(0, 10, 1)) +
+      scale_x_continuous(breaks = seq(0, 60, 10)) +
+      facet_wrap(~podcast, ncol = 2) +
+      labs(title = "The Incomparable Radio Network\nEpisodes per Week in 2015",
+           x = "Week of Year", y = "# fo Episodes") +
+      theme(axis.text.y = element_text(size = rel(.5)))
+```
+
