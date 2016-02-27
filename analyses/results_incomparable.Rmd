@@ -139,6 +139,8 @@ The episode numbers in this are slightly off, due to [The Summer Superhero Spect
 
 ```{r runtime_scatter}
 hosts <- incomparable_wide %>% group_by(host) %>% tally() %>% arrange(desc(n)) %>% extract2("host")
+host_colors <- RColorBrewer::brewer.pal(length(hosts), "Set1")
+
 incomparable_wide %>%
   arrange(date) %>%
   mutate(number_total = 1:nrow(.)) %>%
@@ -154,7 +156,8 @@ incomparable_wide %>%
   scale_color_brewer(palette = "Set1") +
   theme_background +
   theme_breaks_y +
-  theme_breaks_x
+  theme_breaks_x +
+  guides(colour = guide_legend(override.aes = list(fill = host_colors)))
   }
 ```
 
