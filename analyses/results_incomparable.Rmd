@@ -19,9 +19,9 @@ library(lubridate)
 library(tidyr)
 library(DT)
 library(formattable)
-#library(svglite)
 library(viridis)
 library(stringr)
+library(ggrepel)
 
 ## Global options
 options(max.print = "75")
@@ -141,17 +141,21 @@ The episode numbers in this are slightly off, due to [The Summer Superhero Spect
 hosts <- incomparable_wide %>% group_by(host) %>% tally() %>% arrange(desc(n)) %>% extract2("host")
 incomparable_wide %>%
   arrange(date) %>%
-  mutate(number = 1:nrow(.)) %>%
+  mutate(number_total = 1:nrow(.)) %>%
   mutate(host = factor(host, levels = hosts, ordered = TRUE)) %>%
-  ggplot(aes(x = number, y = duration, colour = host)) +
+  {
+  ggplot(data = ., aes(x = number_total, y = duration, colour = host)) +
   geom_point(size = 2, color = "black") +
   geom_point() +
+  geom_label_repel(data = filter(., duration > 150 | duration < 30), 
+                   aes(label = paste0("#", number)), size = 3) + 
   labs(title = "The Incomparable Podcast\nShow Duration",
        x = "Episode #", y = duration_mins, color = "Host") +
   scale_color_brewer(palette = "Set1") +
   theme_background +
   theme_breaks_y +
   theme_breaks_x
+  }
 ```
 
 ## Runtime by Host
