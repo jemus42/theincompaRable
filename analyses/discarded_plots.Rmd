@@ -4,20 +4,21 @@ author: '@Jemus42'
 date: "`r format(Sys.time(), '%F %R', tz = 'UTC', usetz = T)`"
 output:
   html_document:
-    fig_height: 9
-    fig_width: 13
+    fig_width: 9
     self_contained: no
     toc: yes
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = F)
+knitr::opts_chunk$set(echo = F, warning=F, message=F)
 
 library(dplyr)
 library(ggplot2)
 library(scales)
 library(DT)
 library(lubridate)
+library(tidyr)
+library(broom)
 
 incomparable_master      <- readRDS("/Users/Lukas/repos/incomparable/data/incomparable_master.rds")
 incomparable_master_wide <- readRDS("/Users/Lukas/repos/incomparable/data/incomparable_master_wide.rds")
@@ -27,11 +28,11 @@ These plots very either to convoluted or not nice enough for the final analysis,
 
 # Weeklyness
 
-```{r}
+```{r, fig.height=9, fig.width=13}
 incomparable_master_wide %>%
       filter(year == 2015) %>%
       select(-summary) %>%
-      mutate(week = week(date)) %>%
+      mutate(week = isoweek(date)) %>%
       group_by(podcast, year, week) %>%
       tally %>%
       ggplot(aes(x = week, weight = n)) +
@@ -42,5 +43,53 @@ incomparable_master_wide %>%
       labs(title = "The Incomparable Radio Network\nEpisodes per Week in 2015",
            x = "Week of Year", y = "# fo Episodes") +
       theme(axis.text.y = element_text(size = rel(.5)))
+
+incomparable_master_wide %>%
+      filter(year == 2015) %>%
+      select(-summary) %>%
+      mutate(week = isoweek(date)) %>%
+      group_by(podcast, date, year, week) %>%
+      tally %>%
+  datatable() %>%
+  formatDate(columns = 2)
+```
+
+# Yearly Growth
+
+Growth with quadratic, cubic and exponential fits. Not statistically sound in any way, therefore just a test plot as of now.
+
+```{r}
+inc_yearly <- incomparable_master_wide %>%
+  filter(year < 2016, year >= 2010) %>%
+  group_by(year) %>%
+  tally %>%
+  mutate(year = as.numeric(year)) %>%
+  bind_rows(data.frame(year = 2016:2020, n = rep(NA, 5)))
+
+inc_yearly %>%
+  ggplot(data = ., aes(x = year, y = n)) +
+  scale_x_continuous(breaks = seq(2000, 3000, 1), limits = c(2010, 2016)) +
+  labs(y = "Episodes Total", x = "Year") +
+  geom_smooth(method = lm, formula = y ~ poly(x, 3), fullrange = TRUE, color = "blue", se = F) +
+  geom_smooth(method = lm, formula = y ~ poly(x, 2), se = F, fullrange = TRUE, color = "lightblue") +
+  #geom_smooth(method = "nls", formula = n ~ a * exp(year - 2010), start = c(a = 18), se = F)
+  stat_function(fun = function(x){3.837 * exp(x-2010)}, color = "red") +
+  geom_point(size = 2) +
+  scale_y_continuous(breaks = seq(0, 10000, 250))
+
+model1 <- nls(n ~ a * exp(year - 2010), data = inc_yearly, start = list(a = 18))
+model2 <- lm(n ~ poly(year, 2), data = inc_yearly)
+model3 <- lm(n ~ poly(year, 3), data = inc_yearly)
+  
+inc_yearly$pred_exp  <- predict(model1, newdata = inc_yearly)
+inc_yearly$pred_quad <- predict(model2, newdata = inc_yearly)
+inc_yearly$pred_cube <- predict(model3, newdata = inc_yearly)
+
+inc_yearly %>% 
+  gather(fit, value, n, starts_with("pred")) %>%
+  ggplot(aes(x = year, y = value)) +
+  geom_point(size = 2) +
+  facet_wrap(~fit, ncol = 2, scales = "free_y") +
+  scale_x_continuous(breaks = seq(2010, 2020, 1))
 ```
 
