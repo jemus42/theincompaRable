@@ -241,7 +241,9 @@ incomparable_master_wide %>%
   arrange(date) %>%
   mutate(num_show = seq_along(number)) %>%
   plot_ly(data = ., x = num_show, y = duration, mode = "markers", color = podcast,
-          text = paste0(podcast, ": ", number, "<br />", title, "<br />Published: ", date),
+          text = paste0(podcast, ": ", number, "<br />", title, "<br />Published: ", date,
+                        "<br />Duration: ", round(duration, 2), " minutes",
+                        "<br />Hosts: ", host, "<br />Guests: ", guest),
           hoverinfo = "text") %>%
   layout(xaxis = list(title = "Total Episode #"), yaxis = list(title = "Duration (mins)"),
          paper_bgcolor = "#fcfcfc", plot_bgcolor = "#fcfcfc")
