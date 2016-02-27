@@ -66,7 +66,7 @@ get_initial_stats <- function(urlpartial = "theincomparable", show_title = "The 
   require(magrittr)
   require(httr)
   stats_url <- paste0("https://www.theincomparable.com/", urlpartial, "/stats.txt")
-  showstats <- httr::GET(stats_url) %>% httr::content(as = "text") %>%
+  showstats <- readLines(stats_url) %>%
     str_replace_all(',(?=[^"]*"(?:[^"]*"[^"]*")*[^"]*$)', "COMMA") %>%
     str_replace_all('"(?=.*")', "QUOT") %>%
     str_replace("QUOT",'"') %>%
