@@ -92,7 +92,6 @@ get_initial_stats <- function(urlpartial = "theincomparable", show_title = "The 
 
 #### Preparations after initital collection of stats.txt ####
 #### Extract host
-# Needs work, see issue #1
 extract_show_hosts <- function(showstats) {
   showstats %<>%
     separate(host, into = c("host_1", "guest_1"), sep = "\\swith\\s") %>%
