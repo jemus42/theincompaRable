@@ -397,7 +397,7 @@ incomparable_master %>%
   geom_bar(color = "black", width = 1) +
   coord_flip() +
   scale_fill_brewer(palette = "Set1") +
-  labs(title = "Relative # of Appearances by Category\nLimited to 3 Appearances Total",
+  labs(title = "Relative # of Appearances by Category\nLimited to 3 Appearances Minimum",
        x = "Person (Sorted by Appearances)", y = "Percentage", fill = "Category") +
   theme_background
 
