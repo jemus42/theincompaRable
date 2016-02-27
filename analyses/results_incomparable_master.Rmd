@@ -239,7 +239,8 @@ You can manually select shows from the list to the right, mousover reveals episo
 ```{r runtimes_show_episode_plotly}
 incomparable_master_wide %>%
   arrange(date) %>%
-  mutate(num_show = seq_along(number)) %>%
+  mutate(num_show = seq_along(number),
+         podcast = factor(podcast, levels = rev(shows), ordered = T)) %>%
   plot_ly(data = ., x = num_show, y = duration, mode = "markers", color = podcast,
           text = paste0("<b>", podcast, "</b>: ", number, "<br />", title, 
                         "<br /><b>Published</b>: ", date,
