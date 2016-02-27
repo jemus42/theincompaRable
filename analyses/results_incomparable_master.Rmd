@@ -25,6 +25,7 @@ library(viridis)
 library(stringr)
 library(tadaatoolbox)
 library(ggrepel)
+library(plotly)
 
 #### Global options ####
 options(max.print = "75")
@@ -231,6 +232,21 @@ theme_breaks_x +
 theme(legend.key.size = unit(.5, "cm"))
 ```
 
+## Runtime per Show per Episode
+
+You can manually select shows from the list to the right, mousover reveals episode info.
+
+```{r runtimes_show_episode_plotly}
+incomparable_master_wide %>%
+  arrange(date) %>%
+  mutate(num_show = seq_along(number)) %>%
+  plot_ly(data = ., x = num_show, y = duration, mode = "markers", color = podcast,
+          text = paste0(podcast, ": ", number, "<br />", title, "<br />Published: ", date),
+          hoverinfo = "text") %>%
+  layout(xaxis = list(title = "Total Episode #"), yaxis = list(title = "Duration (mins)"))
+```
+
+
 ## Total Runtime by Show
 
 ```{r runtimes_total_show}
@@ -351,6 +367,49 @@ incomparable_master %>%
   arrange(desc(total)) %>%
   datatable(colnames = c("Person", "Apperances Total", "As Host", "As Guest"))
 ```
+
+## Appearances by Category
+
+```{r people_categories}
+categories <- incomparable_master %>% group_by(category) %>% tally %>%
+                arrange(desc(n)) %>% filter(category != "Not provided") %>% extract2("category")
+
+incomparable_master %>%
+  group_by(category, person) %>%
+  tally %>%
+  filter(category != "Not provided") %>%
+  group_by(category, person) %>%
+  summarize(n = sum(n)) %>%
+  arrange(desc(n)) %>%
+  group_by(person) %>%
+  mutate(n_total = sum(n)) %>%
+  ungroup %>%
+  filter(n_total > 3) %>%
+  mutate(n_rel = (n/n_total) * 100,
+         category = factor(category, levels = categories, ordered = T)) %>%
+  ggplot(aes(x = reorder(person, n_total), weight = n_rel, fill = category)) +
+  geom_bar(color = "black", width = 1) +
+  coord_flip() +
+  scale_fill_brewer(palette = "Set1") +
+  labs(title = "Relative # of Appearances by Category\nLimited to 3 Appearances Total",
+       x = "Person (Sorted by Appearances)", y = "Percentage", fill = "Category") +
+  theme_background
+
+incomparable_master %>%
+  group_by(category, person) %>%
+  tally %>%
+  filter(category != "Not provided") %>%
+  group_by(category, person) %>%
+  summarize(n = sum(n)) %>%
+  arrange(desc(n)) %>%
+  group_by(person) %>%
+  mutate(n_total = sum(n)) %>%
+  ungroup %>%
+  mutate(n_rel = round((n/n_total) * 100, 2),
+         category = factor(category, levels = categories, ordered = T)) %>%
+  datatable(colnames = c("Show", "person", "Appearances", "Total (per Person)", "% per Category"))
+```
+
 
 # Acknowledgements
 
