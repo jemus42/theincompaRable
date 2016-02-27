@@ -6,7 +6,7 @@ PROJECT_HOME='/Users/Lukas/repos/incomparable/'
 cd analyses
 
 for file in $(ls *Rmd); do
-  render $file;
+  Rscript -e 'rmarkdown::render($file)';
 done
 
 echo "Pushing…"

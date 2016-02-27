@@ -37,9 +37,9 @@ opts_chunk$set(echo    = FALSE,
              )
 opts_knit$set(width = 90)
 
-incomparable      <- readRDS("/Users/Lukas/repos/incomparable/data/incomparable_master.rds") %>% 
+incomparable      <- readRDS(file.path(data_dir, "incomparable_master.rds")) %>% 
                      filter(podcast == "The Incomparable")
-incomparable_wide <- readRDS("/Users/Lukas/repos/incomparable/data/incomparable_master_wide.rds") %>% 
+incomparable_wide <- readRDS(file.path(data_dir, "incomparable_master_wide.rds")) %>% 
                      filter(podcast == "The Incomparable")
 
 #### Plot presets ####

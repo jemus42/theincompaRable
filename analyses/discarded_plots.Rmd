@@ -20,8 +20,8 @@ library(lubridate)
 library(tidyr)
 library(broom)
 
-incomparable_master      <- readRDS("/Users/Lukas/repos/incomparable/data/incomparable_master.rds")
-incomparable_master_wide <- readRDS("/Users/Lukas/repos/incomparable/data/incomparable_master_wide.rds")
+incomparable_master      <- readRDS(file.path(data_dir, "incomparable_master.rds"))
+incomparable_master_wide <- readRDS(file.path(data_dir, "incomparable_master_wide.rds"))
 ```
 
 These plots very either to convoluted or not nice enough for the final analysis, but complex enough to warrant being kept somewhere.

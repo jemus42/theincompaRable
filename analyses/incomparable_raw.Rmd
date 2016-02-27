@@ -9,6 +9,7 @@ knitr::opts_chunk$set(echo = F)
 
 library(dplyr)
 library(DT)
+incomparable_master_wide <- readRDS(file.path(data_dir, "incomparable_master_wide.rds"))
 ```
 
 # Related Documents
@@ -20,8 +21,6 @@ library(DT)
 # All Show Data
 
 ```{r, echo=F}
-incomparable_master_wide <- readRDS("/Users/Lukas/repos/incomparable/data/incomparable_master_wide.rds")
-
 incomparable_master_wide %>%
   arrange(desc(date)) %>%
   select(-month, -weekday) %>%

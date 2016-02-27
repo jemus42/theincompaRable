@@ -1,11 +1,4 @@
-library(readr)
-library(ggplot2)
-library(magrittr)
-library(dplyr)
-library(stringr)
-library(lubridate)
-library(tidyr)
-library(DT)
+source("prerequisites.R")
 source("helpers.R")
 
 #### Getting individual show stats ####
