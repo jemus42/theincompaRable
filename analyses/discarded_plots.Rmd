@@ -68,13 +68,13 @@ inc_yearly <- incomparable_master_wide %>%
 
 inc_yearly %>%
   ggplot(data = ., aes(x = year, y = n)) +
+  geom_bar(color = "black", stat = "identity", alpha = .6, width = .5) +
   scale_x_continuous(breaks = seq(2000, 3000, 1), limits = c(2010, 2016)) +
   labs(y = "Episodes Total", x = "Year") +
   geom_smooth(method = lm, formula = y ~ poly(x, 3), fullrange = TRUE, color = "blue", se = F) +
   geom_smooth(method = lm, formula = y ~ poly(x, 2), se = F, fullrange = TRUE, color = "lightblue") +
   #geom_smooth(method = "nls", formula = n ~ a * exp(year - 2010), start = c(a = 18), se = F)
   stat_function(fun = function(x){3.837 * exp(x-2010)}, color = "red") +
-  geom_point(size = 2) +
   scale_y_continuous(breaks = seq(0, 10000, 250))
 
 model1 <- nls(n ~ a * exp(year - 2010), data = inc_yearly, start = list(a = 18))
