@@ -66,26 +66,20 @@ get_initial_stats <- function(urlpartial = "theincomparable", show_title = "The 
   require(magrittr)
   require(httr)
   stats_url <- paste0("https://www.theincomparable.com/", urlpartial, "/stats.txt")
-  showstats <-
-    #readLines(stats_url) %>%
-    read_lines(stats_url) %>%
-    str_replace_all(',(?=[^"]*"(?:[^"]*"[^"]*")*[^"]*$)', "COMMA") %>%
-    str_replace_all('"(?=.*")', "QUOT") %>%
-    str_replace("QUOT",'"') %>%
-    paste0(collapse = "\n") %>% {
-      suppressWarnings(read_csv(file = ., col_names = F, trim_ws = T, col_types = cols(X1 = col_character())))
-    } %>%
-    filter(!is.na(X1))
+  showstats <- read_delim(file = stats_url, delim = ";", quote = "",
+                          col_names = F, col_types = cols(X1 = col_character()))
+
 
   if (ncol(showstats) == 5) {
     names(showstats) <- c("number", "date", "duration", "title", "host")
+    showstats$guest <- "None"
   } else {
-    names(showstats) <- c("number", "date", "duration", "title", "host", paste0("guest", 1:(ncol(showstats) - 5)))
+    names(showstats) <- c("number", "date", "duration", "title", "host", "guest")
   }
   showstats$podcast <- show_title
   showstats %<>% select(podcast, everything())
-  showstats$title  <- str_replace_all(showstats$title, "COMMA", ",")
-  showstats$title  <- str_replace_all(showstats$title, "QUOT", "“")
+  #showstats$title  <- str_replace_all(showstats$title, "COMMA", ",")
+  #showstats$title  <- str_replace_all(showstats$title, "QUOT", "“")
 
   return(showstats)
 }
@@ -93,49 +87,25 @@ get_initial_stats <- function(urlpartial = "theincomparable", show_title = "The 
 #### Preparations after initital collection of stats.txt ####
 #### Extract host
 extract_show_hosts <- function(showstats) {
-  showstats %<>%
-    separate(host, into = c("host_1", "guest_1"), sep = "\\swith\\s") %>%
-    mutate(host_1 = str_trim(host_1, "both"),
-           guest_1 = str_trim(guest_1, "both"))
 
-  if ("host_1" %in% names(showstats) & any(str_detect(showstats$host_1, "\\sand\\s"))) {
-    showstats %<>%
-      separate(host_1, into = c("host_1", "host_2"), sep = "\\sand\\s")
-  }
-  if ("host_2" %in% names(showstats) & any(str_detect(showstats$host_2, "\\sand\\s"), na.rm = T)) {
-    showstats %<>%
-      separate(host_2, into = c("host_2", "host_3"), sep = "\\sand\\s", na.rm = T)
-  }
-  if ("host_3" %in% names(showstats) & any(str_detect(showstats$host_3, "\\sand\\s"), na.rm = T)) {
-    showstats %<>%
-      separate(host_3, into = c("host_3", "host_4"), sep = "\\sand\\s")
-  }
+  comma_count <- max(str_count(showstats$host, ","), na.rm = T)
+
+  showstats %<>%
+    separate(host, into = paste0("host_", 1:(comma_count+1)), sep = "\\,\\s") %>%
+    mutate(host_1 = str_trim(host_1, "both"))
+
   return(showstats)
 }
 
 #### Further guest management
 extract_show_guests <- function(showstats){
-  if ("guest_1" %in% names(showstats)) {
-    showstats %<>% separate(guest_1, c("guest1_a", "guest1_b"), sep = " and ")
-  }
-  if ("guest_1b" %in% names(showstats)) {
-    showstats %<>% separate(guest_1b, c("guest1_c", "guest1_d"), sep = " and ")
-  }
-  if ("guest1" %in% names(showstats)) {
-    showstats %<>% separate(guest1, c("guest1_1", "guest1_2"), sep = " and ")
-  }
-  if ("guest2" %in% names(showstats)) {
-    showstats %<>% separate(guest2, c("guest2_1", "guest2_2"), sep = " and ")
-  }
-  if ("guest3" %in% names(showstats)) {
-    showstats %<>% separate(guest3, c("guest3_1", "guest3_2"), sep = " and ")
-  }
-  if ("guest4" %in% names(showstats)) {
-    showstats %<>% separate(guest4, c("guest4_1", "guest4_2"), sep = " and ")
-  }
-  if ("guest5" %in% names(showstats)) {
-    showstats %<>% separate(guest5, c("guest5_1", "guest5_2"), sep = " and ")
-  }
+
+  comma_count <- max(str_count(showstats$guest, ","), na.rm = T)
+
+
+  showstats %<>% separate(guest, paste0("guest_", 1:(comma_count+1)), sep = ",")
+
+
   showstats %<>%
     gather(position, guest, contains("guest")) %>%
     mutate(guest = str_trim(guest, side = "both")) %>%
@@ -149,6 +119,7 @@ collapse_show_people <- function(showstats) {
   showstats %<>%
     gather(host_position, host, contains("host")) %>%
     gather(role, person, host, guest) %>%
+    mutate(person = str_trim(person, "both")) %>%
     select(-host_position) %>%
     distinct() %>%
     filter(!is.na(person))
@@ -157,10 +128,11 @@ collapse_show_people <- function(showstats) {
 
 #### Compilation of the above functions in one ####
 handle_people <- function(showstats) {
-  showstats %<>%
-    extract_show_hosts() %>%
-    extract_show_guests() %>%
-    collapse_show_people()
+  showstats %<>% extract_show_hosts()
+    if ("guest" %in% names(showstats)){
+      showstats %<>% extract_show_guests()
+    }
+  showstats %<>% collapse_show_people()
   return(showstats)
 }
 
