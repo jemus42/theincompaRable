@@ -26,7 +26,8 @@ sophomorelit  <- get_podcast_stats("sophomorelit",  show_title = "Sophomore Lit"
 incomparable_master <- bind_rows(incomparable, robot, teevee, gameshow, tvtm, tpk, ump,
                                  randomtrek, radio, afoot, defocused, lazydoctorwho, myke,
                                  ruin, cartooncast, pod4ham, notplaying, bonustrack,
-                                 sophomorelit)
+                                 sophomorelit) %>%
+                        filter(!is.na(podcast))
 
 # Spreading guests
 incomparable_master_wide <- incomparable_master %>%
