@@ -55,7 +55,8 @@ template_background <- element_rect(fill = "#fcfcfc", color = "#fcfcfc")
 theme_background <- 
   theme(panel.background  = template_background,
         plot.background   = template_background,
-        legend.background = template_background)
+        legend.background = template_background,
+        strip.background  = template_background)
 
 theme_breaks_x <-
   theme(panel.grid.major.x = element_line(size = .1, color = "black"),
@@ -384,8 +385,7 @@ incomparable_master %>%
                      minor_breaks = seq(0, 10e5, 5)) +
   scale_x_continuous(breaks = seq(0, 55, 16)) +
   facet_grid(.~year) +
-  theme(strip.background = template_background,
-        strip.text       = element_text(size = rel(1.2))) +
+  theme(strip.text       = element_text(size = rel(1.2))) +
   labs(title = "The Incomparable Radio Network\nUnique Panelists per Week\n(2010 - Now)",
        x = "Week of Year", y = "# of Unique People") +
   theme_background +
