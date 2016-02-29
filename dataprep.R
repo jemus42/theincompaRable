@@ -31,12 +31,12 @@ incomparable_master <- bind_rows(incomparable, robot, teevee, gameshow, tvtm, tp
 
 # Spreading guests
 incomparable_master_wide <- incomparable_master %>%
-                              widen_people() %>%
-                              full_join(get_podcast_segment_episodes("theincomparable"))
+                              widen_people()
+                              #full_join(get_podcast_segment_episodes("theincomparable"))
 
 # Appending the segments to the long dataset
-incomparable_master %<>%
-  full_join(get_podcast_segment_episodes("theincomparable"))
+#incomparable_master %<>%
+#  full_join(get_podcast_segment_episodes("theincomparable"))
 
 #### Write to disk ####
 cache_podcast_data(incomparable_master_wide)
