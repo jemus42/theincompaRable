@@ -64,11 +64,10 @@ cache_podcast_data <- function(x, dir = "data", filename = NULL) {
 get_initial_stats <- function(urlpartial = "theincomparable", show_title = "The Incomparable") {
   require(readr)
   require(magrittr)
-  require(httr)
+
   stats_url <- paste0("https://www.theincomparable.com/", urlpartial, "/stats.txt")
   showstats <- read_delim(file = stats_url, delim = ";", quote = "",
                           col_names = F, col_types = cols(X1 = col_character()))
-
 
   if (ncol(showstats) == 5) {
     names(showstats) <- c("number", "date", "duration", "title", "host")
@@ -78,8 +77,6 @@ get_initial_stats <- function(urlpartial = "theincomparable", show_title = "The 
   }
   showstats$podcast <- show_title
   showstats %<>% select(podcast, everything())
-  #showstats$title  <- str_replace_all(showstats$title, "COMMA", ",")
-  #showstats$title  <- str_replace_all(showstats$title, "QUOT", "“")
 
   return(showstats)
 }
