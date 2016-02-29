@@ -137,37 +137,43 @@ ggplot(data = incomparable_wide, aes(x = duration)) +
 The episode numbers in this are slightly off, due to [The Summer Superhero Spectacular](http://dump.jemu.name/nuwgL.png), which foiled my plans of representing the episode numbers numerically. I therefore numbered the episodes chronologically, so for example, episode number 258 is the 258th episode aired, but relative to the show's numbering, it's still part of 255.
 
 ```{r runtime_scatter}
-hosts <- incomparable_wide %>% group_by(host) %>% tally() %>% arrange(desc(n)) %>% extract2("host")
-host_colors <- RColorBrewer::brewer.pal(length(hosts), "Set1")
+cat <- incomparable_wide %>% group_by(category) %>% tally() %>% arrange(desc(n)) %>% extract2("category")
+cat_colors <- RColorBrewer::brewer.pal(length(cat), "Set1")
 
 incomparable_wide %>%
   arrange(date) %>%
   mutate(number_total = 1:nrow(.)) %>%
   mutate(host = factor(host, levels = hosts, ordered = TRUE)) %>%
   {
-  ggplot(data = ., aes(x = number_total, y = duration, colour = host)) +
-  geom_point(size = 2, color = "black") +
-  geom_point() +
-  geom_label_repel(data = filter(., duration > 150 | duration < 30), 
-                   aes(label = paste0("#", number)), size = 3) + 
-  labs(title = "The Incomparable Podcast\nShow Duration",
-       x = "Episode #", y = duration_mins, color = "Host") +
-  scale_color_brewer(palette = "Set1") +
-  theme_background +
-  theme_breaks_y +
-  theme_breaks_x +
-  guides(colour = guide_legend(override.aes = list(fill = host_colors)))
+    ggplot(data = ., aes(x = number_total, y = duration, 
+                         color = category, fill = category)) +
+    geom_point(size = 2, color = "black") +
+    geom_point() +
+    geom_label_repel(data = filter(., duration > 150 | duration < 30), color = "black",
+                     aes(label = paste0("#", number)), size = 3, show.legend = F) + 
+    labs(title = "The Incomparable Podcast\nShow Duration",
+         x = "Episode #", y = duration_mins, color = "Category") +
+    scale_color_brewer(palette = "Set1") +
+    scale_fill_brewer(palette = "Set1", guide = F) +
+    theme_background +
+    theme_breaks_y +
+    theme_breaks_x
   }
 ```
 
 ## Runtime by Host
 
 ```{r runtime_by_host}
-ggplot(data = incomparable_wide, aes(x = reorder(host, duration), y = duration)) +
+hosts <- incomparable_wide %>% group_by(host) %>% tally() %>% arrange(desc(n)) %>% extract2("host")
+host_colors <- RColorBrewer::brewer.pal(length(host), "Set1")
+
+incomparable_wide %>%
+  mutate(host = factor(host, levels = rev(hosts), ordered = T)) %>%
+  ggplot(data = ., aes(x = host, y = duration, fill = host)) +
   geom_boxplot() +
   coord_flip() +
-  labs(title = "",
-       x = "Host (first listed)", y = duration_mins) +
+  labs(x = "Host", y = duration_mins) +
+  scale_fill_manual(values = host_colors, guide = F) +
   theme_background +
   theme_breaks_x
 ```
