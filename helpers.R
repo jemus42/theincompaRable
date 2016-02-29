@@ -179,6 +179,15 @@ get_podcast_metadata <- function(urlpartial = "theincomparable"){
   #   str_replace_all(" ", "") %>%
   #   parse_duration()
 
+  # Fallback for date
+  # date <- archive_parsed %>%
+  #   html_nodes(css = ".postdate:nth-child(5)") %>%
+  #   html_text() %>%
+  #   str_replace_all("\\n", "") %>%
+  #   str_replace_all("•.*", "") %>%
+  #   str_trim("both") %>%
+  #   mdy()
+
   summaries <- archive_parsed %>%
     html_nodes(css = ".episode-description") %>%
     html_text() %>%
