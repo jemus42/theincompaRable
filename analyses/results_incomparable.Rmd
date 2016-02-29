@@ -164,7 +164,7 @@ incomparable_wide %>%
 
 ```{r runtime_by_host}
 hosts <- incomparable_wide %>% group_by(host) %>% tally() %>% arrange(desc(n)) %>% extract2("host")
-host_colors <- RColorBrewer::brewer.pal(length(host), "Set1")
+host_colors <- RColorBrewer::brewer.pal(length(hosts), "Set1")
 
 incomparable_wide %>%
   mutate(host = factor(host, levels = rev(hosts), ordered = T)) %>%
