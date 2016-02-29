@@ -22,27 +22,6 @@ notplaying    <- get_podcast_stats("notplaying",    show_title = "Not Playing")
 bonustrack    <- get_podcast_stats("bonustrack",    show_title = "Bonus Track")
 sophomorelit  <- get_podcast_stats("sophomorelit",  show_title = "Sophomore Lit")
 
-#### Saving files locally ####
-cache_podcast_data(incomparable)
-cache_podcast_data(robot)
-cache_podcast_data(teevee)
-cache_podcast_data(gameshow)
-cache_podcast_data(tvtm)
-cache_podcast_data(tpk)
-cache_podcast_data(ump)
-cache_podcast_data(randomtrek)
-cache_podcast_data(radio)
-cache_podcast_data(afoot)
-cache_podcast_data(defocused)
-cache_podcast_data(lazydoctorwho)
-cache_podcast_data(myke)
-cache_podcast_data(ruin)
-cache_podcast_data(cartooncast)
-cache_podcast_data(pod4ham)
-cache_podcast_data(notplaying)
-cache_podcast_data(bonustrack)
-cache_podcast_data(sophomorelit)
-
 #### Binding the good datasets to a master dataset ####
 incomparable_master <- bind_rows(incomparable, robot, teevee, gameshow, tvtm, tpk, ump,
                                  randomtrek, radio, afoot, defocused, lazydoctorwho, myke,
@@ -50,7 +29,7 @@ incomparable_master <- bind_rows(incomparable, robot, teevee, gameshow, tvtm, tp
                                  sophomorelit)
 cache_podcast_data(incomparable_master)
 
-#### Spreading guests
+# Spreading guests
 incomparable_master_wide <- incomparable_master %>% widen_people()
 cache_podcast_data(incomparable_master_wide)
 
