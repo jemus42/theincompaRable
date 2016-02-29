@@ -132,7 +132,8 @@ handle_people <- function(showstats) {
     if ("guest" %in% names(showstats)){
       showstats %<>% extract_show_guests()
     }
-  showstats %<>% collapse_show_people()
+  showstats %<>% collapse_show_people() %>%
+    filter(person != "None")
   return(showstats)
 }
 
