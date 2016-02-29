@@ -47,7 +47,8 @@ template_background <- element_rect(fill = "#fcfcfc", color = "#fcfcfc")
 theme_background <- 
   theme(panel.background  = template_background,
         plot.background   = template_background,
-        legend.background = template_background)
+        legend.background = template_background,
+        strip.background  = template_background)
 
 theme_breaks_x <-
   theme(panel.grid.major.x = element_line(size = .1, color = "black"),
@@ -143,21 +144,21 @@ cat_colors <- RColorBrewer::brewer.pal(length(cat), "Set1")
 incomparable_wide %>%
   arrange(date) %>%
   mutate(number_total = 1:nrow(.)) %>%
-  {
-    ggplot(data = ., aes(x = number_total, y = duration, 
-                         color = category, fill = category)) +
-    geom_point(size = 2, color = "black") +
-    geom_point() +
-    geom_label_repel(data = filter(., duration > 150 | duration < 30), color = "black",
-                     aes(label = paste0("#", number)), size = 3, show.legend = F) + 
-    labs(title = "The Incomparable Podcast\nShow Duration",
-         x = "Episode #", y = duration_mins, color = "Category") +
-    scale_color_brewer(palette = "Set1") +
-    scale_fill_brewer(palette = "Set1", guide = F) +
-    theme_background +
-    theme_breaks_y +
-    theme_breaks_x
-  }
+  plot_ly(data = ., x = number_total, y = duration, 
+          mode = "markers", color = category, marker = list(size = 8), 
+          colors = cat_colors,
+          text = paste0("<b>", title, "</b>: ", number, 
+                        "<br /><b>Segment:</b>", segment, 
+                        "<br /><b>Topic:</b>", topic, 
+                        "<br /><b>Category:</b>", category, 
+                        "<br /><b>Published</b>: ", date,
+                        "<br /><b>Duration</b>: ", round(duration, 2), " minutes",
+                        "<br /><b>Host</b>: ", host, "<br /><b>Guests</b>:<br />", 
+                        str_replace_all(guest, ", ", "<br />")),
+          hoverinfo = "text") %>%
+  layout(xaxis = list(title = "Total Episode #"), yaxis = list(title = "Duration (mins)",
+                                                               rangemode = "tozero"),
+         paper_bgcolor = "#fcfcfc", plot_bgcolor = "#fcfcfc")
 ```
 
 ## Runtime by Host
@@ -193,23 +194,23 @@ ggplot(data = incomparable_wide, aes(x = year, y = duration)) +
 
 ```{r runtime_yearmonth, fig.height=8}
 incomparable_wide %>%
-  mutate(month = factor(month, levels = rev(levels(month)))) %>%
+  mutate(month = as.numeric(month)) %>%
+  group_by(year, month) %>%
+  summarize(duration = mean(duration)) %>%
   ggplot(aes(x = month, y = duration)) +
-  geom_boxplot() +
-  coord_flip() +
-  facet_wrap(~year, ncol = 3) +
-  labs(y = duration_mins, x = "") +
-  theme_background
-```
-
-### Weekdays
-
-```{r runtime_wday}
-ggplot(data = incomparable_wide, aes(x = weekday, y = duration)) +
-  geom_boxplot() +
-  labs(x = "", y = duration_mins) +
+  geom_point() +
+  geom_smooth(method = lm, se = F, color = "red") +
+  scale_x_continuous(breaks = seq(0, 12, 6),
+                   minor_breaks = seq(0, 12, 1)) +
+  scale_y_continuous(breaks = seq(0, 200, 15),
+                     minor_breaks = seq(0, 200, 5)) +
+  facet_grid(.~year) +
+  labs(title = "The Incomparable Podcast\nAverage Duration per Month",
+       y = duration_mins, x = "") +
   theme_background +
-  theme_breaks_y
+  theme_breaks_x +
+  theme_breaks_y +
+  theme(strip.text = element_text(size = rel(1.2)))
 ```
 
 # Topics / Categories
@@ -230,18 +231,19 @@ incomparable_wide %>%
 
 # Guests
 
-```{r guests, fig.height=9}
+```{r guests}
 incomparable %>%
   filter(role == "guest") %>%
   group_by(person) %>%
   tally %>%
   arrange(desc(n)) %>%
+  filter(n > 2) %>%
   ggplot(aes(x = reorder(person, n), weight = n)) +
   geom_bar() +
   coord_flip() +
   scale_y_continuous(breaks = seq(0, 1000, 20),
                      minor_breaks = seq(0, 1000, 10)) +
-  labs(title = "The Incomparable Podcast\nGuest Appearances",
+  labs(title = "The Incomparable Podcast\nGuest Appearances\n(3 Appearances Minumum)",
        x = "Guest", y = "# of Appearances") +
   theme_background +
   theme_breaks_x
