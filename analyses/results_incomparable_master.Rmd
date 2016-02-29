@@ -255,6 +255,30 @@ theme_breaks_x +
 theme(legend.key.size = unit(.5, "cm"))
 ```
 
+## Runtime per Week
+
+```{r runtime_per_week}
+incomparable_master_wide %>%
+  mutate(week = week(date)) %>%
+  filter(year >= 2010) %>%
+  group_by(year, week) %>%
+  summarize(runtime = sum(duration)) %>%
+  ggplot(data = ., aes(x = week, y = runtime)) +
+  geom_point() +
+  geom_smooth(method = lm, se = F, color = "red") +
+  scale_y_continuous(breaks = seq(0, 10e5, 120),
+                     minor_breaks = seq(0, 10e5, 60)) +
+  scale_x_continuous(breaks = seq(0, 55, 16)) +
+  facet_grid(.~year) +
+  theme(strip.background = template_background,
+        strip.text       = element_text(size = rel(1.2))) +
+  labs(title = "The Incomparable Radio Network\nWeekly Output\n(2010 - Now)",
+       x = "Week of Year", y = "Minutes per Week") +
+  theme_background +
+  theme_breaks_y
+```
+
+
 ## Runtime per Show per Episode
 
 You can manually select shows from the list to the right, mousover reveals episode info.
@@ -359,6 +383,30 @@ incomparable_master_wide %>%
 ```
 
 # People
+
+## People Involved
+
+```{r people_per_week}
+incomparable_master %>%
+  mutate(week = week(date)) %>%
+  filter(year >= 2010) %>%
+  group_by(year, week) %>%
+  summarize(people = length(unique(person))) %>%
+  ggplot(data = ., aes(x = week, y = people)) +
+  geom_point() +
+  geom_smooth(method = lm, se = F, color = "red") +
+  scale_y_continuous(breaks = seq(0, 10e5, 10),
+                     minor_breaks = seq(0, 10e5, 5)) +
+  scale_x_continuous(breaks = seq(0, 55, 16)) +
+  facet_grid(.~year) +
+  theme(strip.background = template_background,
+        strip.text       = element_text(size = rel(1.2))) +
+  labs(title = "The Incomparable Radio Network\nUnique Panelists per Week\n(2010 - Now)",
+       x = "Week of Year", y = "# of Unique People") +
+  theme_background +
+  theme_breaks_y
+```
+
 
 ## Shows by People Counts
 
