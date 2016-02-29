@@ -192,7 +192,7 @@ ggplot(data = incomparable_wide, aes(x = year, y = duration)) +
 
 ### Over Years/Months
 
-```{r runtime_yearmonth, fig.height=8}
+```{r runtime_yearmonth}
 incomparable_wide %>%
   mutate(month = as.numeric(month)) %>%
   group_by(year, month) %>%

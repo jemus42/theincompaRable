@@ -221,16 +221,17 @@ get_podcast_segment_episodes <- function(urlpartial = "theincomparable"){
                      list(partial = "rocketsurgery", name = "Rocket Surgery"),
                      list(partial = "comicbookclub", name = "Comic Book Club"),
                      list(partial = "bookclub", name = "Book Club"))
+    podcast <- "The Incomparable"
   } else {
     return(NULL)
   }
 
   ret <- plyr::ldply(segments, function(segment){
           url <- paste("https://www.theincomparable.com", urlpartial, segment$partial, "archive", sep = "/")
-          titles <- read_html(url) %>%
-            html_nodes("#entry a") %>%
-            html_text()
-          data.frame(title = titles, segment = segment$name)
+          entry  <- read_html(url) %>% html_nodes(".entry-title a")
+          title <- entry %>% html_text()
+          epnums <- entry %>% html_attr("href") %>% str_extract("\\d+")
+          data.frame(number = epnums, segment = segment$name, podcast = podcast)
         })
   return(ret)
 }
