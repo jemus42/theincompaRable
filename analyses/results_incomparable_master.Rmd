@@ -157,6 +157,31 @@ incomparable_master %>%
 
 ## Episodes per Week
 
+### Total 
+
+```{r episodes_per_week_all}
+incomparable_master_wide %>%
+  mutate(week = week(date)) %>%
+  filter(year >= 2010) %>%
+  group_by(year, week) %>%
+  tally %>%
+  ggplot(data = ., aes(x = week, y = n)) +
+  geom_point() +
+  geom_smooth(method = lm, se = F, color = "red") +
+  scale_y_continuous(breaks = seq(0, 100, 5),
+                     minor_breaks = seq(0, 100, 1)) +
+  scale_x_continuous(breaks = seq(0, 55, 16)) +
+  facet_grid(.~year) +
+  theme(strip.background = template_background,
+        strip.text       = element_text(size = rel(1.2))) +
+  labs(title = "The Incomparable Radio Network\nWeekly Episode Output\n(2010 - Now)",
+       x = "Week of Year", y = "Episodes Published") +
+  theme_background +
+  theme_breaks_y
+```
+
+### Per Show
+
 ```{r show_episodes_lifetime_ep}
 incomparable_master_wide %>%
   filter(year >= 2010) %>%
@@ -213,7 +238,6 @@ incomparable_master_wide %>%
   formatDate(columns = c(2, 3)) %>%
   formatRound(columns = 4:8)
 ```
-
 
 # Runtimes
 
