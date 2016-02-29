@@ -336,6 +336,30 @@ incomparable_master_wide %>%
 
 # People
 
+## Shows by People Counts
+
+```{r people_per_show}
+incomparable_master %>%
+  mutate(podcast = factor(podcast, levels = rev(shows), ordered = T)) %>%
+  group_by(podcast, number) %>%
+  summarize(people_total = length(unique(person))) %>%
+  {
+    ggplot(., aes(x = podcast, y = people_total)) +
+    geom_boxplot() +
+    geom_label_repel(data = filter(., people_total >= 10), 
+                     aes(label = paste0("#", number))) +
+    geom_label_repel(data = filter(., people_total >= 4, podcast == "Random Trek"), 
+                     aes(label = paste0("#", number))) +
+    coord_flip() +
+    scale_y_continuous(breaks = seq(0, 100, 2),
+                       minor_breaks = 1:100) +
+    labs(x = "Show", y = "# of People") +
+    theme_background +
+    theme_breaks_x
+  }
+```
+
+
 ## Appearances in Total
 
 ```{r people_appearances, fig.height=7}
@@ -412,7 +436,7 @@ incomparable_master %>%
   ungroup %>%
   mutate(n_rel = round((n/n_total) * 100, 2),
          category = factor(category, levels = categories, ordered = T)) %>%
-  datatable(colnames = c("Show", "person", "Appearances", "Total (per Person)", "% per Category"))
+  datatable(colnames = c("Show", "Person", "Appearances", "Total (per Person)", "% per Category"))
 ```
 
 
