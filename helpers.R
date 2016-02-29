@@ -169,12 +169,16 @@ get_podcast_metadata <- function(urlpartial = "theincomparable"){
     html_text() %>%
     as.character()
 
-  # summaries <- entries %>%
-  #   str_replace_all("^(\\W)*\\d+(\\W)*", "") %>%
-  #   str_replace_all("^.*\\n(\\n+|\\s+)", "") %>%
-  #   str_replace_all("\\n(\\n+|\\s+|.+|\\w|\\•|\\,|\\d+)+$", "")
+  # Not exact, but possible fallback for duration. Lacks seconds.
+  # duration <- archive_parsed %>%
+  #   html_nodes(css = ".postdate .postdate") %>%
+  #   html_text() %>%
+  #   str_replace_all("(minutes|minute)", ":0") %>%
+  #   str_replace_all("(hours|hour)", ":") %>%
+  #   str_replace_all(",", "") %>%
+  #   str_replace_all(" ", "") %>%
+  #   parse_duration()
 
-  # Possibly smarter solution?
   summaries <- archive_parsed %>%
     html_nodes(css = ".episode-description") %>%
     html_text() %>%
