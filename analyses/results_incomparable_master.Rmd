@@ -132,21 +132,6 @@ incomparable_master_wide %>%
   tally %>%
   arrange(desc(year)) %>%
   datatable(colnames = c("Year", "# of Episodes"))
-```
-
-### Per Show
-
-```{r show_episodes_year, fig.height=8}
-incomparable_master_wide %>%
-  group_by(podcast, year) %>%
-  summarize(n = length(unique(number))) %>%
-  ggplot(aes(x = reorder(podcast, n), weight = n)) +
-  geom_bar() +
-  coord_flip() +
-  facet_wrap(~year) +
-  labs(x = "Show", y = "# of Episodes") +
-  theme_background +
-  theme_breaks_x
 
 incomparable_master %>%
   group_by(podcast, year) %>%
