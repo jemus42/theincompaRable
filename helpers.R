@@ -34,17 +34,17 @@ enhance_datetimes <- function(showstats) {
 
 #### Spread long to wide format
 # Only applicable to master dataset
-widen_people <- function(master, concatenate = FALSE) {
+widen_people <- function(master) {
   master %<>%
     group_by(podcast, number, role) %>%
     mutate(person_number = paste0("person_", seq_along(person))) %>%
     spread(person_number, person) %>%
     unite(persons, starts_with("person_"), sep = ", ") %>%
     mutate(persons = str_replace_all(persons, ", NA", "")) %>%
-    spread(role, persons) %>%
+    spread(key = role, value = persons) %>%
     ungroup %>%
     select(podcast, number, date, year, month, weekday,
-           duration, title, host, guest, category, topic, summary)
+           duration, title, host, guest, category, topic, everything())
   return(master)
 }
 
@@ -212,3 +212,26 @@ get_podcast_metadata <- function(urlpartial = "theincomparable"){
                        category = categories, topic = topics)
   return(result)
 }
+
+get_podcast_segment_episodes <- function(urlpartial = "theincomparable"){
+  require(rvest)
+
+  if (urlpartial == "theincomparable"){
+    segments <- list(list(partial = "oldmovieclub", name = "Old Movie Club"),
+                     list(partial = "rocketsurgery", name = "Rocket Surgery"),
+                     list(partial = "comicbookclub", name = "Comic Book Club"),
+                     list(partial = "bookclub", name = "Book Club"))
+  } else {
+    return(NULL)
+  }
+
+  ret <- plyr::ldply(segments, function(segment){
+          url <- paste("https://www.theincomparable.com", urlpartial, segment$partial, "archive", sep = "/")
+          titles <- read_html(url) %>%
+            html_nodes("#entry a") %>%
+            html_text()
+          data.frame(title = titles, segment = segment$name)
+        })
+  return(ret)
+}
+
