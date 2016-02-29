@@ -98,6 +98,7 @@ See [the repository](https://github.com/jemus42/theincompaRable#about) for a not
 ```{r master_shows}
 incomparable_master_wide %>%
   group_by(podcast) %>%
+  filter(!is.na(podcast)) %>%
   summarize(first_aired = min(date), last_aired = max(date), episodes = n(),
             primary_hosts = modus(host)) %>%
   arrange(desc(episodes)) %>%
