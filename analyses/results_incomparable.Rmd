@@ -143,7 +143,6 @@ cat_colors <- RColorBrewer::brewer.pal(length(cat), "Set1")
 incomparable_wide %>%
   arrange(date) %>%
   mutate(number_total = 1:nrow(.)) %>%
-  mutate(host = factor(host, levels = hosts, ordered = TRUE)) %>%
   {
     ggplot(data = ., aes(x = number_total, y = duration, 
                          color = category, fill = category)) +
