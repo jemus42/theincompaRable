@@ -7,4 +7,6 @@ for (file in dir(".", pattern = ".Rmd")){
   rmarkdown::render(file)
 }
 
-system(command = "rsync -avz *html *_files /srv/stats.jemu.name/theincomparable/")
+setwd("..")
+
+system(command = "cd analyses; rsync -avz *html *_files /srv/stats.jemu.name/theincomparable/")
