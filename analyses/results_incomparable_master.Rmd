@@ -68,10 +68,29 @@ theme_breaks_y <-
 
 ```
 
+```{r text_placeholders}
+projection <- incomparable_master_wide %>%
+  filter(year >= 2010) %>%
+  group_by(podcast) %>%
+  summarize(first_aired = min(date),
+            last_aired = max(date),
+            episodes = length(unique(number))) %>%
+  mutate(lifetime_weeks = as.numeric(difftime(last_aired, first_aired, units = "weeks")),
+         episodes_per_week = episodes / lifetime_weeks) %>%
+  transmute(ep_yearly = episodes_per_week * 52) %>%
+  summarize(sum(ep_yearly)) %>% 
+  as.numeric() %>%
+  round()
+```
+
+
 [The Incomparable Radio Network](https://www.theincomparable.com/) spans **`r incomparable_master_wide$podcast %>% unique %>% length()`** shows (including the [Bonus Track](https://www.theincomparable.com/bonustrack/), but *not* including the [Greatest Hits feed](https://www.theincomparable.com/best)), **`r incomparable_master$person %>% unique %>% length()`** people and a combined runtime of over **`r incomparable_master_wide$duration %>% sum() %>% divide_by(60) %>% divide_by(24) %>% floor`** days spread across **`r nrow(incomparable_master_wide)` episodes**.  
 That's quite a lot.
 
-This data is up to date up until **`r max(incomparable_master_wide$date)`** and updates automagically via a `@daily` cronjob. All the data and all the plots are refreshed then.  
+In `r year(now())-1`, there were **`r incomparable_master_wide %>% filter(year == year(now())-1) %>% nrow()`** episodes published, and based on the average release frequencies, there will probably be **`r projection`** episodes in `r year(now())`.
+
+This data is up to date up until **`r max(incomparable_master_wide$date)`** and updates automagically via a `@daily` cronjob.   
+All the data (including those printed in **bold**) and all the plots are refreshed then.  
 See [the repository](https://github.com/jemus42/theincompaRable#about) for a note on how this analysis started. And the code. And stuff.
 
 # Overview
