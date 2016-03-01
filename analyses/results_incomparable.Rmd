@@ -313,6 +313,7 @@ seg <- incomparable_wide %>% group_by(segment) %>%
 
 incomparable_wide %>%
   mutate(category = factor(segment, levels = rev(seg), ordered = T)) %>%
+  replace_na(list(segment = "General")) %>%
   ggplot(., aes(x = segment, y = duration)) +
   geom_boxplot() +
   stat_summary(fun.y = "mean", geom = "point", color = "red", size = 2) +
