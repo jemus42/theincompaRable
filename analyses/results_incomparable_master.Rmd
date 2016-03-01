@@ -388,6 +388,24 @@ incomparable_master_wide %>%
             caption = "All values in minutes")
 ```
 
+## Runtime by Number of Panelists
+
+```{r runtime_panelists}
+incomparable_master %>%
+  group_by(podcast, number) %>%
+  summarize(num_people = length(unique(person)), duration = unique(duration)) %>%
+  ggplot(., aes(x = num_people, y = duration)) +
+  geom_point(alpha = .6) +
+  scale_y_continuous(breaks = seq(0, 500, 30),
+                     minor_breaks = seq(0, 200, 15)) +
+  scale_x_continuous(breaks = scales::pretty_breaks(6)) +
+  labs(title = "The Incomparable Radio Network\nPodcast Duration by # of Panelists",
+       x = "Number of Panelists", y = "Duration (mins)") +
+  theme_background +
+  theme_breaks_y
+```
+
+
 # People
 
 ## People Involved
