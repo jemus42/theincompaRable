@@ -213,34 +213,38 @@ get_podcast_metadata <- function(urlpartial = "theincomparable"){
   return(result)
 }
 
-get_podcast_segment_episodes <- function(urlpartial = "theincomparable"){
+get_podcast_segment_episodes <- function(){
   require(rvest)
 
-  if (urlpartial == "theincomparable"){
-    segments <- list(list(partial = "oldmovieclub", name = "Old Movie Club"),
-                     list(partial = "rocketsurgery", name = "Rocket Surgery"),
-                     list(partial = "comicbookclub", name = "Comic Book Club"),
-                     list(partial = "bookclub", name = "Book Club"))
-    podcast <- "The Incomparable"
-  } else if (urlpartial == "gameshow") {
-    segments <- list(list(partial = "counterclockwise", name = "Counterclockwise"),
-                     list(partial = "gamenight", name = "Game Night"),
-                     list(partial = "inconceivable", name = "Inconceivable!"),
-                     list(partial = "lowdef", name = "Low Definition"),
-                     list(partial = "turnsout", name = "Turns Out"),
-                     list(partial = "pundit", name = "Pundit Showdown"))
-    podcast <- "Game Show"
-  } else {
-    return(NULL)
-  }
+  segments_incomparable <- list(list(partial = "oldmovieclub", name = "Old Movie Club"),
+                           list(partial = "rocketsurgery", name = "Rocket Surgery"),
+                           list(partial = "comicbookclub", name = "Comic Book Club"),
+                           list(partial = "bookclub", name = "Book Club"))
 
-  ret <- plyr::ldply(segments, function(segment){
-          url <- paste("https://www.theincomparable.com", urlpartial, segment$partial, "archive", sep = "/")
+  segments_gameshow <- list(list(partial = "counterclockwise", name = "Counterclockwise"),
+                       list(partial = "gamenight", name = "Game Night"),
+                       list(partial = "inconceivable", name = "Inconceivable!"),
+                       list(partial = "lowdef", name = "Low Definition"),
+                       list(partial = "turnsout", name = "Turns Out"),
+                       list(partial = "pundit", name = "Pundit Showdown"))
+
+  inc <-  plyr::ldply(segments_incomparable, function(segment){
+          url <- paste("https://www.theincomparable.com/theincomparable", segment$partial, "archive", sep = "/")
           entry  <- read_html(url) %>% html_nodes(".entry-title a")
           title  <- entry %>% html_text()
           epnums <- entry %>% html_attr("href") %>% str_extract("\\d+")
-          data.frame(number = epnums, segment = segment$name, podcast = podcast)
+          data.frame(number = epnums, segment = segment$name, podcast = "The Incomparable")
         })
+
+  gs <-  plyr::ldply(segments_gameshow, function(segment){
+    url <- paste("https://www.theincomparable.com/gameshow", segment$partial, "archive", sep = "/")
+    entry  <- read_html(url) %>% html_nodes(".entry-title a")
+    title  <- entry %>% html_text()
+    epnums <- entry %>% html_attr("href") %>% str_extract("\\d+")
+    data.frame(number = epnums, segment = segment$name, podcast = "Game Show")
+  })
+
+  ret <- bind_rows(inc, gs)
   return(ret)
 }
 
