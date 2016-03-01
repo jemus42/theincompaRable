@@ -21,6 +21,7 @@ parse_duration <- function(x){
 
 #### Parse date and times
 enhance_datetimes <- function(showstats) {
+  require(lubridate)
   showstats %<>%
     filter(!is.na(number)) %>%
     mutate(duration = parse_duration(duration),
@@ -66,13 +67,17 @@ get_initial_stats <- function(urlpartial = "theincomparable", show_title = "The 
   require(magrittr)
 
   stats_url <- paste0("https://www.theincomparable.com/", urlpartial, "/stats.txt")
-  showstats <- read_delim(file = stats_url, delim = ";", quote = "",
+  showstats <- read_lines(stats_url) %>%
+    str_c(., ";") %>%
+    paste0(collapse = "\n") %>%
+    read_delim(file = ., delim = ";", quote = "",
                           col_names = F, col_types = cols(X1 = col_character()))
 
   if (ncol(showstats) == 5) {
     names(showstats) <- c("number", "date", "duration", "title", "host")
     showstats$guest <- "None"
   } else {
+    showstats        <- showstats[1:6]
     names(showstats) <- c("number", "date", "duration", "title", "host", "guest")
   }
   showstats$podcast <- show_title
