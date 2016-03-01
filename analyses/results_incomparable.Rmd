@@ -296,6 +296,59 @@ incomparable %>%
   datatable(colnames = c("Guest", "Episodes", "Episode %", "% of Guests"))
 ```
 
+## Appearances by Category
+
+```{r people_categories}
+categories <- incomparable %>% group_by(category) %>% tally %>%
+                arrange(desc(n)) %>% filter(category != "Not provided") %>% extract2("category")
+
+incomparable %>%
+  group_by(category, person) %>%
+  tally %>%
+  filter(category != "Not provided") %>%
+  group_by(category, person) %>%
+  summarize(n = sum(n)) %>%
+  arrange(desc(n)) %>%
+  group_by(person) %>%
+  mutate(n_total = sum(n)) %>%
+  ungroup %>%
+  filter(n_total > 2) %>%
+  mutate(n_rel = (n/n_total) * 100,
+         category = factor(category, levels = categories, ordered = T)) %>%
+  ggplot(aes(x = reorder(person, n_total), weight = n_rel, fill = category)) +
+  geom_bar(color = "black", width = 1) +
+  coord_flip() +
+  scale_fill_brewer(palette = "Set1") +
+  labs(title = "Relative # of Appearances by Category\nLimited to 2 Appearances Minimum",
+       x = "Person (Sorted by Appearances)", y = "Percentage", fill = "Category") +
+  theme_background
+
+incomparable %>%
+  group_by(category, person) %>%
+  tally %>%
+  filter(category != "Not provided") %>%
+  group_by(category, person) %>%
+  summarize(n = sum(n)) %>%
+  arrange(desc(n)) %>%
+  group_by(person) %>%
+  mutate(n_total = sum(n)) %>%
+  ungroup %>%
+  mutate(n_rel = round((n/n_total) * 100, 2),
+         category = factor(category, levels = categories, ordered = T)) %>%
+  datatable(colnames = c("Category", "Person", "Appearances", "Total (per Person)", "% per Category"))
+
+incomparable %>%
+  group_by(category, person) %>%
+  tally %>%
+  filter(category != "Not provided") %>%
+  group_by(category, person) %>%
+  summarize(n = sum(n)) %>%
+  arrange(desc(n)) %>%
+  spread(category, n) %>%
+  replace_na(list(Books = 0, Comics = 0, Games = 0, Movies = 0, Music = 0, Shows = 0, Special = 0)) %>%
+  datatable(colnames = c("Person" = "person"))
+```
+
 # Acknowledgements
 
 - Thanks to Jason for setting up the `stats.txt` files I parsed for the data.
