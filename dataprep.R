@@ -51,3 +51,10 @@ incomparable_master_wide %>%
          summary = str_trim(summary, "right")) %>%
   arrange(desc(date)) %>%
   write.table(., "data/incomparable_master_wide.csv", sep = ";", row.names = F)
+
+incomparable_master %>%
+  mutate(summary = str_replace_all(summary, '\\s"', ' “'),
+         summary = str_replace_all(summary, '"(\\s)*', '” '),
+         summary = str_trim(summary, "right")) %>%
+  arrange(desc(date)) %>%
+  write.table(., "data/incomparable_master.csv", sep = ";", row.names = F)
