@@ -161,6 +161,45 @@ incomparable_wide %>%
          paper_bgcolor = "#fcfcfc", plot_bgcolor = "#fcfcfc")
 ```
 
+## Average Runtime per Person
+
+```{r runtime_per_person_appearances}
+incomparable %>%
+  group_by(person) %>%
+  mutate(avg_duration = mean(duration),
+         num_appearances = n()) %>%
+  filter(num_appearances > 3) %>%
+  ggplot(., aes(x = reorder(person, avg_duration), y = duration)) +
+  geom_boxplot() +
+  coord_flip() +
+  scale_y_continuous(breaks = seq(0, 300, 30),
+                     minor_breaks = seq(0, 300, 15)) +
+  labs(title = "The Incomparable Podcast\nEpisode Duration by Person Involved\n(3 Appearances Minimum)",
+       y = "Duration (mins)", x = "Person") +
+  theme_background +
+  theme_breaks_x
+
+incomparable %>%
+  group_by(person) %>%
+  summarize(avg_duration = mean(duration),
+         num_appearances = n()) %>%
+  {
+  ggplot(., aes(x = num_appearances, y = avg_duration)) +
+  geom_point() +
+  geom_label_repel(data = filter(., avg_duration > 150 | num_appearances > 100),
+                   aes(label = person)) +
+  scale_y_continuous(breaks = seq(0, 300, 30),
+                     minor_breaks = seq(0, 300, 15)) +
+  scale_x_continuous(breaks = seq(0, 1000, 50),
+                     minor_breaks = seq(0, 1000, 25)) +
+  labs(title = "Average Duration by Number of Appearances per Person",
+       x = "# of Appearances", y = "Average Episode Duration (mins)") +
+  theme_background +
+  theme_breaks_y
+  }
+```
+
+
 ## Runtime by Host
 
 ```{r runtime_by_host}
@@ -286,7 +325,7 @@ incomparable_wide %>%
   theme_breaks_x
 ```
 
-# Guests
+# People
 
 ```{r guests}
 incomparable %>%
