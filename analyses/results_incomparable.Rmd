@@ -73,6 +73,20 @@ Jason replied [he could get more metadata if I liked](https://twitter.com/jsnell
 A short time after that, [Jason delivered magnificiently](https://twitter.com/jsnell/status/700882298795765761).  
 And now my analysis begins.
 
+# Overview
+
+```{r overview_stats}
+ov_epcount   <- nrow(incomparable_wide)
+ov_since     <- min(incomparable_wide$date)
+ov_dur_avg   <- round(mean(incomparable_wide$duration), 1)
+ov_dur_total <- round(sum(incomparable_wide$duration)/60, 1)
+ov_cat_max   <- modus(incomparable_wide$category)
+ov_cat_freq <- nrow(incomparable_wide[incomparable_wide$category == ov_cat_max, ])
+```
+
+**The Incomparable** has been running since **`r ov_since`**, with **`r ov_epcount`** released so far.  
+An average episode of the podcast is **`r ov_dur_avg`** minutes long, with a total runtime of **`r ov_dur_total`** hours, or roughly **`r round(ov_dur_total/24)`** days. The most frequent category is **`r ov_cat_max`** with **`r ov_cat_freq`** episodes. 
+
 # Episodes Counts
 
 ## Episodes per Month / Year
