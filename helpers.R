@@ -102,11 +102,11 @@ extract_show_hosts <- function(showstats) {
 #### Further guest management
 extract_show_guests <- function(showstats){
 
+  if (all(is.na(showstats$guest))) return(showstats)
+
   comma_count <- max(str_count(showstats$guest, ","), na.rm = T)
 
-
   showstats %<>% separate(guest, paste0("guest_", 1:(comma_count+1)), sep = ",")
-
 
   showstats %<>%
     gather(position, guest, contains("guest")) %>%
