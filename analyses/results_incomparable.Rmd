@@ -229,6 +229,25 @@ incomparable_wide %>%
   theme_breaks_x
 ```
 
+## Categories by Average Episode Duration
+
+```{r categories_duration}
+cat <- incomparable_wide %>% group_by(category) %>% 
+  summarize(dur_avg = mean(duration)) %>% 
+  arrange(desc(dur_avg)) %>% extract2("category")
+
+incomparable_wide %>%
+  mutate(category = factor(category, levels = rev(cat), ordered = T)) %>%
+  ggplot(., aes(x = category, y = duration)) +
+  geom_boxplot() +
+  stat_summary(fun.y = "mean", geom = "point", color = "red", size = 2) +
+  coord_flip() +
+  labs(title = "The Incomparable Podcast\nBy Categories",
+       x = "Category", y = "Duration (mins)") +
+  theme_background +
+  theme_breaks_x
+```
+
 # Guests
 
 ```{r guests}
