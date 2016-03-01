@@ -233,6 +233,17 @@ get_podcast_segment_episodes <- function(){
                        list(partial = "turnsout", name = "Turns Out"),
                        list(partial = "pundit", name = "Pundit Showdown"))
 
+  segments_teevee <- list(list(partial = "arrow", name = "Arrow"),
+                          list(partial = "daredevil", name = "Daredevil"),
+                          list(partial = "doctorwho", name = "Doctor Who!"),
+                          list(partial = "gameofthrones", name = "Game of Thrones"),
+                          list(partial = "legends", name = "Legends of Tomorrow"),
+                          list(partial = "jessicajones", name = "Jessica Jones"),
+                          list(partial = "sonsofanarchy", name = "Sons of Anarchy"),
+                          list(partial = "expanse", name = "The Expanse"),
+                          list(partial = "flash", name = "The Flash"),
+                          list(partial = "truedetective", name = "True Detective"))
+
   inc <-  plyr::ldply(segments_incomparable, function(segment){
           url <- paste("https://www.theincomparable.com/theincomparable", segment$partial, "archive", sep = "/")
           entry  <- read_html(url) %>% html_nodes(".entry-title a")
@@ -242,14 +253,22 @@ get_podcast_segment_episodes <- function(){
         })
 
   gs <-  plyr::ldply(segments_gameshow, function(segment){
-    url <- paste("https://www.theincomparable.com/gameshow", segment$partial, "archive", sep = "/")
-    entry  <- read_html(url) %>% html_nodes(".entry-title a")
-    title  <- entry %>% html_text()
-    epnums <- entry %>% html_attr("href") %>% str_extract("\\d+")
-    data.frame(number = epnums, segment = segment$name, podcast = "Game Show")
-  })
+            url <- paste("https://www.theincomparable.com/gameshow", segment$partial, "archive", sep = "/")
+            entry  <- read_html(url) %>% html_nodes(".entry-title a")
+            title  <- entry %>% html_text()
+            epnums <- entry %>% html_attr("href") %>% str_extract("\\d+")
+            data.frame(number = epnums, segment = segment$name, podcast = "Game Show")
+          })
 
-  ret <- bind_rows(inc, gs)
+  teevee <-  plyr::ldply(segments_teevee, function(segment){
+                url <- paste("https://www.theincomparable.com/teevee", segment$partial, "archive", sep = "/")
+                entry  <- read_html(url) %>% html_nodes(".entry-title a")
+                title  <- entry %>% html_text()
+                epnums <- entry %>% html_attr("href") %>% str_extract("\\d+")
+                data.frame(number = epnums, segment = segment$name, podcast = "TeeVee")
+              })
+
+  ret <- bind_rows(inc, gs, teevee)
   return(ret)
 }
 
