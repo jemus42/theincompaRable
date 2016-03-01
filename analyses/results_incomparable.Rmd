@@ -188,6 +188,21 @@ ggplot(data = incomparable_wide, aes(x = year, y = duration)) +
   labs(x = "", y = duration_mins) +
   theme_background +
   theme_breaks_y
+
+incomparable_wide %>%
+  replace_na(list(segment = "General")) %>%
+  ggplot(data = ., 
+       aes(x = date, y = duration)) +
+  geom_point(size = 3, color = "black") +
+  geom_point(size = 2, aes(color = segment)) +
+  geom_smooth(method = lm, formula = y ~ poly(x, 2), se = F, group = 1) +
+  scale_y_continuous(breaks = seq(0, 300, 30),
+                     minor_breaks = seq(0, 300, 15)) +
+  scale_color_brewer(palette = "Set1") +
+  labs(title = "The Incomparable Podcast\nEpisodes Runtimes",
+       x = "Date Published", y = "Duration (mins)", color = "Segment") +
+  theme_background +
+  theme_breaks_y
 ```
 
 ### Over Years/Months
