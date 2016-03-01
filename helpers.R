@@ -222,6 +222,14 @@ get_podcast_segment_episodes <- function(urlpartial = "theincomparable"){
                      list(partial = "comicbookclub", name = "Comic Book Club"),
                      list(partial = "bookclub", name = "Book Club"))
     podcast <- "The Incomparable"
+  } else if (urlpartial == "gameshow") {
+    segments <- list(list(partial = "counterclockwise", name = "Counterclockwise"),
+                     list(partial = "gamenight", name = "Game Night"),
+                     list(partial = "inconceivable", name = "Inconceivable!"),
+                     list(partial = "lowdef", name = "Low Definition"),
+                     list(partial = "turnsout", name = "Turns Out"),
+                     list(partial = "pundit", name = "Pundit Showdown"))
+    podcast <- "Game Show"
   } else {
     return(NULL)
   }
@@ -229,7 +237,7 @@ get_podcast_segment_episodes <- function(urlpartial = "theincomparable"){
   ret <- plyr::ldply(segments, function(segment){
           url <- paste("https://www.theincomparable.com", urlpartial, segment$partial, "archive", sep = "/")
           entry  <- read_html(url) %>% html_nodes(".entry-title a")
-          title <- entry %>% html_text()
+          title  <- entry %>% html_text()
           epnums <- entry %>% html_attr("href") %>% str_extract("\\d+")
           data.frame(number = epnums, segment = segment$name, podcast = podcast)
         })
