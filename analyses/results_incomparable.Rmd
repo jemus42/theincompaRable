@@ -242,6 +242,8 @@ incomparable_wide %>%
   geom_boxplot() +
   stat_summary(fun.y = "mean", geom = "point", color = "red", size = 2) +
   coord_flip() +
+  scale_y_continuous(breaks = seq(0, 500, 30),
+                     minor_breaks = seq(0, 500, 15)) +
   labs(title = "The Incomparable Podcast\nBy Categories",
        x = "Category", y = "Duration (mins)") +
   theme_background +
