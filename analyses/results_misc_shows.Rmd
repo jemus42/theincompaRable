@@ -1,0 +1,219 @@
+---
+title: "Misc Incomparable Shows — In Numbers"
+date: "`r format(Sys.time(), '%F %R', tz = 'UTC', usetz = T)`"
+author: "Lukas — @jemus42"
+output:
+  rmdformats::readthedown:
+    highlight: kate
+    self_contained: false
+---
+
+```{r knitr_init, echo=FALSE, cache=FALSE, include=FALSE}
+#### Paackages ####
+library(knitr)
+library(rmdformats)
+library(readr)
+library(ggplot2)
+library(magrittr)
+library(dplyr)
+library(lubridate)
+library(tidyr)
+library(DT)
+library(scales)
+library(viridis)
+library(stringr)
+library(tadaatoolbox)
+library(ggrepel)
+library(plotly)
+
+#### Global options ####
+options(max.print = "75")
+opts_chunk$set(echo    = FALSE,
+	             cache   = FALSE,
+               prompt  = FALSE,
+               tidy    = TRUE,
+               comment = NA,
+               message = FALSE,
+               warning = FALSE)
+opts_knit$set(width = 75)
+
+#### Data prep ####
+incomparable_master      <- readRDS(file.path(data_dir, "incomparable_master.rds"))
+incomparable_master_wide <- readRDS(file.path(data_dir, "incomparable_master_wide.rds"))
+
+shows <- incomparable_master_wide %>% group_by(podcast) %>% tally() %>% arrange(desc(n)) %>% extract2("podcast")
+
+incomparable_master_wide %<>%
+  mutate(podcast = factor(podcast, levels = shows, ordered = T))
+
+incomparable_master %<>%
+  mutate(podcast = factor(podcast, levels = shows, ordered = T))
+
+#### Plot presets ####
+template_background <- element_rect(fill = "#fcfcfc", color = "#fcfcfc")
+
+theme_background <- 
+  theme(panel.background  = template_background,
+        plot.background   = template_background,
+        legend.background = template_background,
+        strip.background  = template_background)
+
+theme_breaks_x <-
+  theme(panel.grid.major.x = element_line(size = .1, color = "black"),
+        panel.grid.minor.x = element_line(size = .1, color = "black", linetype = "dotted"))
+  
+theme_breaks_y <-   
+  theme(panel.grid.major.y = element_line(size = .1, color = "black"),
+        panel.grid.minor.y = element_line(size = .1, color = "black", linetype = "dotted"))
+```
+
+# Overview
+
+Here are some plots about shows that didn't fit anywhere else.
+
+- [All shows](http://stats.jemu.name/theincomparable/results_incomparable_master.html)
+- [Missing data](http://stats.jemu.name/theincomparable/missings.html)
+- [All shows, raw data](http://stats.jemu.name/theincomparable/incomparable_raw.html)
+
+
+# Robot or Not?
+
+```{r robotornot}
+incomparable_master_wide %>%
+  filter(podcast == "Robot or Not?") %>%
+  {
+  ggplot(., aes(x = as.numeric(number), y = duration)) +
+  geom_point(size = 2) +
+  geom_smooth(method = loess, se = F) +
+  geom_label_repel(data = filter(., duration < 1.5 | duration > 6),
+                   aes(label = paste0("#", number, ": ", title))) +
+  scale_y_continuous(breaks = seq(0, 20, 1), limits = c(0, 10)) +
+  scale_x_continuous(breaks = seq(0, 200, 5)) +
+  labs(x = "Episode #", y = "Duration (mins)") +
+  theme_background +
+  theme_breaks_y
+  }
+```
+
+## By Topic
+
+```{r robotornot_bytopic, fig.height=7}
+incomparable_master_wide %>%
+  filter(podcast == "Robot or Not?") %>%
+  {
+    ggplot(., aes(x = reorder(title, duration), weight = duration)) +
+      geom_bar(color = "black") +
+      coord_flip() +
+      geom_hline(yintercept = mean(.$duration), linetype = "dotted", color = "red") +
+      scale_y_continuous(breaks = seq(0, 20, 1),
+                         minor_breaks = seq(0, 20, .5)) +
+      labs(x = "Episode #", y = "Duration (mins)") +
+      theme_background +
+      theme_breaks_x
+  }
+```
+
+# Game Show
+
+```{r gameshow}
+incomparable_master_wide %>%
+  filter(podcast == "Game Show") %>%
+  {
+    ggplot(., aes(x = as.numeric(number), y = duration, color = segment)) +
+      geom_point(size = 3, color = "black") +
+      geom_point(size = 2) +
+      geom_label_repel(data = filter(., duration > 60),
+                       aes(label = paste0("#", number)), show.legend = F) +
+      scale_y_continuous(breaks = seq(0, 200, 30),
+                         minor_breaks = seq(0, 200, 15)) +
+      scale_x_continuous(breaks = scales::pretty_breaks()) +
+      scale_color_brewer(palette = "Set1") +
+      labs(x = "Episode #", y = "Duration (mins)", color = "Segment") +
+      theme_background +
+      theme_breaks_y
+  }
+```
+
+## By Game
+
+```{r gameshow_bygames}
+incomparable_master_wide %>%
+  filter(podcast == "Game Show") %>%
+  group_by(segment) %>%
+  mutate(dur_avg = mean(duration)) %>%
+  {
+    ggplot(., aes(x = reorder(segment, dur_avg), y = duration)) +
+      geom_boxplot(color = "black") +
+      geom_label_repel(data = filter(., duration > 60),
+                       aes(label = paste0("#", number)), show.legend = F) +
+      coord_flip() +
+      geom_hline(yintercept = mean(.$duration), linetype = "dotted", color = "red") +
+      scale_y_continuous(breaks = seq(0, 200, 15),
+                         minor_breaks = seq(0, 200, 5)) +
+      labs(x = "Episode #", y = "Duration (mins)") +
+      theme_background +
+      theme_breaks_x
+  }
+```
+
+# Defocused
+
+```{r defocused}
+incomparable_master_wide %>%
+  filter(podcast == "Defocused") %>%
+  {
+    ggplot(., aes(x = date, y = duration)) +
+      geom_point(size = 3, color = "black") +
+      geom_point(size = 2, aes(color = category)) +
+      geom_label_repel(data = filter(., duration < 60 | duration > 150),
+                       aes(label = paste0("#", number)), show.legend = F) +
+      geom_smooth(method = loess) +
+      scale_y_continuous(breaks = seq(0, 200, 30),
+                         minor_breaks = seq(0, 200, 15)) +
+      scale_color_brewer(palette = "Set1") +
+      labs(x = "Episode #", y = "Duration (mins)", color = "Category") +
+      theme_background +
+      theme_breaks_y
+  }
+```
+
+# TeeVee
+
+```{r teevee}
+incomparable_master_wide %>%
+  filter(podcast == "TeeVee") %>%
+  {
+    ggplot(., aes(x = as.numeric(number), y = duration, color = segment)) +
+      geom_point(size = 3, color = "black") +
+      geom_point(size = 2) +
+      geom_label_repel(data = filter(., duration > 90),
+                       aes(label = paste0("#", number, ": ", title)), show.legend = F) +
+      scale_y_continuous(breaks = seq(0, 200, 30),
+                         minor_breaks = seq(0, 200, 15)) +
+      scale_x_continuous(breaks = scales::pretty_breaks()) +
+      scale_color_brewer(palette = "Spectral") +
+      labs(x = "Episode #", y = "Duration (mins)", color = "Segment") +
+      theme_background +
+      theme_breaks_y
+  }
+
+```
+
+## By Show
+
+```{r teevee_byshow}
+incomparable_master_wide %>%
+  filter(podcast == "TeeVee") %>%
+  {
+    ggplot(., aes(x = segment, y = duration)) +
+      geom_boxplot() +
+      stat_summary(fun.y = "mean", geom = "point", color = "red", size = 2) +
+      coord_flip() +
+      scale_y_continuous(breaks = seq(0, 200, 30),
+                         minor_breaks = seq(0, 200, 15)) +
+      labs(x = "Segment", y = "Duration (mins)") +
+      theme_background +
+      theme_breaks_x
+  }
+```
+
