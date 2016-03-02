@@ -405,6 +405,25 @@ incomparable_master %>%
   theme_breaks_y
 ```
 
+### Minutes per Person
+
+```{r runtime_per_person}
+incomparable_master %>%
+  group_by(podcast, number) %>%
+  summarize(num_people = length(unique(person)), duration = unique(duration)) %>%
+  mutate(min_per_person = duration/num_people) %>%
+  ggplot(., aes(x = reorder(podcast, min_per_person), y = min_per_person)) +
+  geom_boxplot() +
+  coord_flip() +
+  scale_y_continuous(breaks = seq(0, 500, 15),
+                     minor_breaks = seq(0, 200, 5)) +
+  labs(title = "The Incomparable Radio Network\nPodcast Duration by # of Panelists",
+       x = "Show", y = "Duration per Person (mins)") +
+  theme_background +
+  theme_breaks_x
+```
+
+
 
 # People
 

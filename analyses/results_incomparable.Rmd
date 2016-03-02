@@ -213,6 +213,29 @@ incomparable %>%
   }
 ```
 
+## Runtime per Number of Panelists
+
+```{r runtime_per_person}
+incomparable %>%
+  arrange(date) %>%
+  group_by(number, date, title) %>%
+  summarize(num_people = length(unique(person)), duration = unique(duration)) %>%
+  ungroup %>%
+  mutate(min_per_person = duration/num_people) %>%
+  {
+  ggplot(., aes(x = date, y = min_per_person)) +
+  geom_point() +
+  geom_label_repel(data = filter(., min_per_person > 35),
+                   aes(label = paste0("#", number, ": ", title))) +
+  scale_y_continuous(breaks = seq(0, 500, 15),
+                     minor_breaks = seq(0, 200, 5)) +
+  labs(title = "The Incomparable Podcast\nDuration by # of Panelists",
+       x = "Date Published", y = "Duration per Person (mins)") +
+  theme_background +
+  theme_breaks_y
+  }
+```
+
 
 ## Runtime by Host
 
