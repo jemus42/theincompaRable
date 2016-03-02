@@ -302,7 +302,7 @@ incomparable_master_wide %>%
                         str_replace_all(guest, ", ", "<br />")),
           hoverinfo = "text") %>%
   layout(xaxis = list(title = "Total Episode #"), yaxis = list(title = "Duration (mins)"),
-         paper_bgcolor = "#fcfcfc", plot_bgcolor = "#fcfcfc")
+         paper_bgcolor = "#fcfcfc", plot_bgcolor = "#fcfcfc", hovermode = "closest")
 ```
 
 

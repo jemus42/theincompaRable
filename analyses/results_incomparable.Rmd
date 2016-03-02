@@ -172,7 +172,7 @@ incomparable_wide %>%
           hoverinfo = "text") %>%
   layout(xaxis = list(title = "Total Episode #"), yaxis = list(title = "Duration (mins)",
                                                                rangemode = "tozero"),
-         paper_bgcolor = "#fcfcfc", plot_bgcolor = "#fcfcfc")
+         paper_bgcolor = "#fcfcfc", plot_bgcolor = "#fcfcfc", hovermode = "closest")
 ```
 
 ## Average Runtime per Person
