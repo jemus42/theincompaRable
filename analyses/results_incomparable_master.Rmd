@@ -573,5 +573,6 @@ incomparable_master %>%
 # Related Documents
 
 - [The main show](http://stats.jemu.name/theincomparable/results_incomparable.html)
+- [Misc plots for other shows](http://stats.jemu.name/theincomparable/results_misc_shows.html)
 - [Missing data](http://stats.jemu.name/theincomparable/missings.html)
 - [All shows, raw data](http://stats.jemu.name/theincomparable/incomparable_raw.html)
