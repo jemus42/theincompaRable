@@ -204,8 +204,11 @@ incomparable_master_wide %>%
 ```{r teevee_byshow}
 incomparable_master_wide %>%
   filter(podcast == "TeeVee") %>%
+  group_by(segment) %>%
+  mutate(dur_seg = mean(duration)) %>%
+  replace_na(list(segment = "Misc")) %>%
   {
-    ggplot(., aes(x = segment, y = duration)) +
+    ggplot(., aes(x = reorder(segment, dur_seg), y = duration)) +
       geom_boxplot() +
       stat_summary(fun.y = "mean", geom = "point", color = "red", size = 2) +
       coord_flip() +
@@ -215,5 +218,27 @@ incomparable_master_wide %>%
       theme_background +
       theme_breaks_x
   }
+```
+
+# Lazy Doctor Who
+
+```{r lazydoctorwho}
+incomparable_master_wide %>%
+  filter(podcast == "Lazy Doctor Who") %>%
+  {
+    ggplot(., aes(x = date, y = duration)) +
+      geom_point(size = 3, color = "black") +
+      geom_point(size = 2) +
+      #geom_label_repel(data = filter(., duration > 90),
+      #                 aes(label = paste0("#", number, ": ", title)), show.legend = F) +
+      scale_y_continuous(breaks = seq(0, 200, 10),
+                         minor_breaks = seq(0, 200, 5)) +
+      scale_x_datetime(date_breaks = "months", date_labels = "%b %Y") +
+      labs(x = "Date Published", y = "Duration (mins)") +
+      theme_background +
+      theme_breaks_y +
+      theme(axis.text.x = element_text(angle = 45, vjust = .5))
+  }
+
 ```
 
