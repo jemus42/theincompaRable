@@ -61,7 +61,7 @@ theme_breaks_y <-
 duration_mins <- "Duration (mins)"
 ```
 
-Note: This is a work in progress, and thise document is only a preview.  
+Note: This is a work in progress.    
 I have **a lot** in mind for this project, but I *really really should be studying* right now.
 
 # Introduction
