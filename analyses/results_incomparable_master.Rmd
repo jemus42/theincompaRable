@@ -81,13 +81,16 @@ projection <- incomparable_master_wide %>%
   summarize(sum(ep_yearly)) %>% 
   as.numeric() %>%
   round()
+
+thisyear <- incomparable_master_wide %>% filter(year == year(now())) %>% nrow()
+progress <- round(thisyear/projection * 100)
 ```
 
 
 [The Incomparable Radio Network](https://www.theincomparable.com/) spans **`r incomparable_master_wide$podcast %>% unique %>% length()`** shows (including the [Bonus Track](https://www.theincomparable.com/bonustrack/), but *not* including the [Greatest Hits feed](https://www.theincomparable.com/best)), **`r incomparable_master$person %>% unique %>% length()`** people and a combined runtime of over **`r incomparable_master_wide$duration %>% sum() %>% divide_by(60) %>% divide_by(24) %>% floor`** days spread across **`r nrow(incomparable_master_wide)` episodes**.  
 That's quite a lot.
 
-In `r year(now())-1`, there were **`r incomparable_master_wide %>% filter(year == year(now())-1) %>% nrow()`** episodes published, and based on the average release frequencies, there will probably be **`r projection`** episodes in `r year(now())`.
+In `r year(now())-1`, there were **`r incomparable_master_wide %>% filter(year == year(now())-1) %>% nrow()`** episodes published, and based on the average release frequencies, there will probably be **`r projection`** episodes in `r year(now())`. We're currently about **`r progress`%** of the way there at **`r thisyear`** episodes.
 
 This data is up to date up until **`r max(incomparable_master_wide$date)`** and updates automagically via a `@daily` cronjob.   
 All the data (including those printed in **bold**) and all the plots are refreshed then.  
