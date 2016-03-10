@@ -58,3 +58,13 @@ incomparable_master %>%
          summary = str_trim(summary, "right")) %>%
   arrange(desc(date)) %>%
   write.table(., "data/incomparable_master.csv", sep = ";", row.names = F)
+
+#### Also do Relay.fm things ####
+
+relay <- get_relay_shows()
+cache_podcast_data(relay)
+
+relay %>%
+  arrange(desc(date)) %>%
+  write.table(., "data/relay.csv", sep = ";", row.names = F)
+
