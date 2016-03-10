@@ -6,6 +6,8 @@ output:
   rmdformats::readthedown:
     highlight: kate
     self_contained: false
+    fig_height: 5
+    fig_width: 8
 ---
 
 ```{r knitr_init, echo=FALSE, cache=FALSE, include=FALSE}
@@ -34,18 +36,17 @@ opts_chunk$set(echo    = FALSE,
                tidy    = TRUE,
                comment = NA,
                message = FALSE,
-               warning = FALSE)
+               warning = FALSE,
+               fig.retina = 2)
 opts_knit$set(width = 75)
 
 #### Data prep ####
-relay      <- readRDS(file.path("data", "relay.rds"))
+relay      <- readRDS(file.path("data", "relay.rds")) %>% filter(year >= 2014)
 
 shows <- relay %>% group_by(podcast) %>% tally() %>% arrange(desc(n)) %>% extract2("podcast")
 
 relay %<>%
-  mutate(podcast = factor(podcast, levels = shows, ordered = T)) %>%
-  filter(year >= 2014) 
-  
+  mutate(podcast = factor(podcast, levels = shows, ordered = T))
 
 #### Plot presets ####
 template_background <- element_rect(fill = "#fcfcfc", color = "#fcfcfc")
@@ -117,7 +118,7 @@ relay %>%
 
 ## All Shows
 
-```{r runtime_allshows, fig.height=8, fig.width=9}
+```{r runtime_allshows, fig.height=8, fig.width=11}
 relay %>%
   filter(podcast != "B-Sides") %>%
   {
@@ -156,7 +157,7 @@ relay %>%
              coord_flip() +
              scale_y_continuous(breaks = seq(0, 300, 30),
                                 minor_breaks = seq(0, 300, 15)) +
-             labs(title = expression(paste(italic("Relay.fm "), "Episode Duration — Boxplot + Mean (read)")),
+             labs(title = expression(paste(italic("Relay.fm "), "Episode Duration — Boxplot + Mean (red)")),
                   x = "", y = "Duration (mins)") +
              theme_background +
              theme_breaks_x
@@ -176,9 +177,10 @@ relay %>%
       stat_summary(fun.data = "mean_ci_t", geom = "errorbar") +
       stat_summary(fun.y = "mean", geom = "point", size = 2, color = "red") +
       coord_flip() +
+      expand_limits(y = 0) +
       scale_y_continuous(breaks = seq(0, 300, 30),
                          minor_breaks = seq(0, 300, 15)) +
-      labs(title = expression(paste(italic("Relay.fm "), "Episode Duration — 95% CI + Mean (read)")),
+      labs(title = expression(paste(italic("Relay.fm "), "Episode Duration — 95% CI + Mean (red)")),
            x = "", y = "Duration (mins)") +
       theme_background +
       theme_breaks_x
