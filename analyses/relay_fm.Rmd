@@ -147,6 +147,52 @@ relay %>%
   }
 ```
 
+### Regularity
+
+```{r shows_perweek_bars, fig.height=8, fig.width=11}
+relay %>%
+  filter(year == 2015) %>%
+  mutate(week = isoweek(date)) %>%
+  group_by(podcast, year, week) %>%
+  tally %>%
+  ggplot(aes(x = week, weight = n)) +
+  geom_bar() +
+  scale_y_continuous(breaks = seq(0, 10, 1)) +
+  scale_x_continuous(breaks = seq(0, 60, 10)) +
+  facet_wrap(~podcast, ncol = 2) +
+  labs(title = expression(paste(italic("Relay.fm "), 
+                                "Episodes per Week in 2015")),
+       x = "Week of Year", y = "# fo Episodes") +
+  theme_background +
+  theme_breaks_y +
+  theme(axis.text.y = element_text(size = rel(.5))) 
+```
+
+### Regularity and Age
+
+```{r shows_perweek_perage}
+relay %>%
+  group_by(podcast) %>%
+  summarize(first_aired = min(date),
+            last_aired = max(date),
+            episodes = length(unique(number)),
+            duration = sum(duration)) %>%
+  mutate(lifetime_weeks = as.numeric(difftime(last_aired, first_aired, units = "weeks")),
+         episodes_per_week = episodes / lifetime_weeks,
+         duration_per_week = duration / lifetime_weeks) %>%
+  ggplot(aes(x = lifetime_weeks, y = episodes_per_week)) +
+  geom_point() +
+  geom_label_repel(aes(label = podcast), size = 3) +
+  geom_hline(aes(yintercept = mean(episodes_per_week)), linetype = "dotted", color = "blue") +
+  geom_vline(aes(xintercept = mean(lifetime_weeks)), linetype = "dotted", color = "blue") +
+  labs(title = expression(paste(italic("Relay.fm "), 
+                                "Show Lifetime and Weekly Output")),
+       x = "Lifetime of Podcast in Weeks", y = "Average # of Episodes per Week") +
+    theme_background +
+    theme_breaks_y
+```
+
+
 ## Shows per Month
 
 ```{r shows_permonth}
@@ -205,6 +251,7 @@ relay %>%
 relay %>%
   ggplot(aes(x = duration, fill = podcast)) +
   geom_histogram(binwidth = 2.5) +
+  geom_density(aes(y = ..count.., group = 1), fill = "black", alpha = .3) +
   scale_x_continuous(breaks = seq(0, 300, 15),
                          minor_breaks = seq(0, 300, 5)) +
   scale_y_continuous(breaks = seq(0, 300, 15),
@@ -233,7 +280,8 @@ relay %>%
              coord_flip() +
              scale_y_continuous(breaks = seq(0, 300, 30),
                                 minor_breaks = seq(0, 300, 15)) +
-             labs(title = expression(paste(italic("Relay.fm "), "Episode Duration — Boxplot + Mean (red)")),
+             labs(title = expression(paste(italic("Relay.fm "), 
+                                           "Episode Duration — Boxplot + Mean (red)")),
                   x = "", y = "Duration (mins)") +
              theme_background +
              theme_breaks_x
