@@ -251,6 +251,32 @@ incomparable_master_wide %>%
 
 # Runtimes
 
+## All Shows
+
+```{r runtimes_allshows, fig.height=8, fig.width=11}
+incomparable_master_wide %>%
+  filter(year >= 2013) %>%
+  {
+    ggplot(., aes(x = date, y = duration)) +
+      geom_point() +
+     # geom_label_repel(data = filter(., duration > 160),
+    #                   aes(label = title)) +
+      expand_limits(y = 0) +
+      #geom_smooth(method = loess, se = T) +
+      scale_x_datetime(breaks = date_breaks("12 months"), minor_breaks = date_breaks("3 months"),
+                       date_labels = "%b '%y") +
+      scale_y_continuous(breaks = seq(0, 300, 30),
+                         minor_breaks = seq(0, 300, 15)) +
+      facet_wrap(~podcast, ncol = 7) +
+      labs(title = expression(paste(italic("The Incomparable "), "Episode Durations")),
+           x = "Date Published", y = "Duration (mins)") +
+      theme_background +
+      theme_breaks_y +
+      theme(axis.text.x = element_text(angle = 45, vjust = .5))
+  }
+```
+
+
 ## Overall Runtimes
 
 ```{r runtimes_histogram}
