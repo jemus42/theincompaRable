@@ -69,7 +69,7 @@ theme_breaks_y <-
 
 # Intro
 
-After doing [The Incomparable](http://stats.jemu.name/theincomparable/results_incomparable_master.html), I had to go see what I could with [Relay.fm's](https://relay.fm) data as well, naturally.  
+After doing [The Incomparable](http://stats.jemu.name/theincomparable/results_incomparable_master.html), I had to go see what I could do with [Relay.fm's](https://relay.fm) data as well, naturally.  
 So this is the beginning of that. The source code is included in [the original repo](https://github.com/jemus42/theincompaRable), and, in case anyone asks:  
 Yes, you can use these graphs for whatever. Maybe link back to me, that would be cool.
 
