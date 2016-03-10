@@ -30,7 +30,8 @@ opts_chunk$set(echo    = FALSE,
                tidy    = TRUE,
                comment = NA,
                message = FALSE,
-               warning = FALSE
+               warning = FALSE,
+               fig.retina = 2
              # dev = "svglite",
              # fig.ext = ".svg"
              )
