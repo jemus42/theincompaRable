@@ -41,6 +41,8 @@ opts_chunk$set(echo    = FALSE,
 opts_knit$set(width = 75)
 
 #### Data prep ####
+if (!exists("data_dir")) data_dir <- "data"
+
 relay      <- readRDS(file.path(data_dir, "relay.rds")) %>% filter(year >= 2014)
 
 shows <- relay %>% group_by(podcast) %>% tally() %>% arrange(desc(n)) %>% extract2("podcast")
@@ -135,11 +137,38 @@ relay %>%
   scale_y_continuous(breaks = seq(0, 100, 5),
                      minor_breaks = seq(0, 100, 1)) +
   scale_x_continuous(breaks = seq(0, 55, 16)) +
-  facet_grid(.~year) +
+  facet_grid(.~year, space = "free_x", scales = "free_x") +
   theme(strip.background = template_background,
         strip.text       = element_text(size = rel(1.2))) +
   labs(title = expression(paste(italic("Relay.fm "), "Weekly Episode Output")),
        x = "Week of Year", y = "Episodes Published") +
+  theme_background +
+  theme_breaks_y
+  }
+```
+
+## Shows per Month
+
+```{r shows_permonth}
+relay %>%
+  mutate(month = month(date)) %>%
+  filter(year >= 2014) %>%
+  group_by(year, month) %>%
+  tally %>%
+  {
+  ggplot(data = ., aes(x = month, y = n)) +
+  geom_point() +
+  geom_smooth(data = filter(., year != 2016),
+              method = lm, se = F, color = "red") +
+  scale_y_continuous(breaks = seq(0, 100, 15),
+                     minor_breaks = seq(0, 100, 5)) +
+  scale_x_continuous(breaks = seq(0, 13, 2),
+                     minor_breaks = seq(0, 13, 1)) +
+  facet_grid(.~year, space = "free_x", scales = "free_x") +
+  theme(strip.background = template_background,
+        strip.text       = element_text(size = rel(1.2))) +
+  labs(title = expression(paste(italic("Relay.fm "), "Monthly Episode Output")),
+       x = "Month of Year", y = "Episodes Published") +
   theme_background +
   theme_breaks_y
   }
@@ -155,10 +184,7 @@ relay %>%
   {
     ggplot(., aes(x = date, y = duration)) +
       geom_point() +
-     # geom_label_repel(data = filter(., duration > 160),
-    #                   aes(label = title)) +
       expand_limits(y = 0) +
-      #geom_smooth(method = loess, se = T) +
       scale_x_datetime(breaks = date_breaks("6 months"), minor_breaks = date_breaks("3 month"),
                        date_labels = "%b %Y") +
       scale_y_continuous(breaks = seq(0, 300, 30),
@@ -170,7 +196,26 @@ relay %>%
       theme_breaks_y +
       theme(axis.text.x = element_text(angle = 45, vjust = .5))
   }
+
 ```
+
+### Histogram
+
+```{r runtime_allshows_hist}
+relay %>%
+  ggplot(aes(x = duration, fill = podcast)) +
+  geom_histogram(binwidth = 2.5) +
+  scale_x_continuous(breaks = seq(0, 300, 15),
+                         minor_breaks = seq(0, 300, 5)) +
+  scale_y_continuous(breaks = seq(0, 300, 15),
+                         minor_breaks = seq(0, 300, 5)) +
+  scale_fill_viridis(discrete = T) +
+  labs(title = expression(paste(italic("Relay.fm "), "Episode Durations")),
+           y = "Frequency", x = "Duration (mins)", fill = "Show") +
+      theme_background +
+      theme_breaks_y
+```
+
 
 ## Average by Show
 
@@ -209,8 +254,8 @@ relay %>%
       stat_summary(fun.y = "mean", geom = "point", size = 2, color = "red") +
       coord_flip() +
       expand_limits(y = 0) +
-      scale_y_continuous(breaks = seq(0, 300, 30),
-                         minor_breaks = seq(0, 300, 15)) +
+      scale_y_continuous(breaks = seq(0, 300, 15),
+                         minor_breaks = seq(0, 300, 5)) +
       labs(title = expression(paste(italic("Relay.fm "), "Episode Duration — 95% CI + Mean (red)")),
            x = "", y = "Duration (mins)") +
       theme_background +
