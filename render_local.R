@@ -9,4 +9,4 @@ for (file in dir(".", pattern = ".Rmd")){
 
 setwd("..")
 
-system(command = "cd analyses; rsync -avz *html *_files /srv/stats.jemu.name/theincomparable/")
+system(command = "cd analyses; rsync -avz *html assets /srv/stats.jemu.name/theincomparable/")
