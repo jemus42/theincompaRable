@@ -7,10 +7,11 @@ output:
     fig_width: 9
     self_contained: no
     toc: yes
+    lib_dir: "assets"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = F, warning=F, message=F)
+knitr::opts_chunk$set(echo = F, warning=F, message=F, fig.path = "assets/discarded/")
 
 library(dplyr)
 library(ggplot2)

@@ -4,8 +4,8 @@ date: "`r format(Sys.time(), '%F %R', tz = 'UTC', usetz = T)`"
 author: "Lukas — @jemus42"
 output:
   rmdformats::readthedown:
-    highlight: kate
     self_contained: false
+    lib_dir: "assets"
 ---
 
 ```{r knitr_init, echo=FALSE, cache=FALSE, include=FALSE}
@@ -34,7 +34,8 @@ opts_chunk$set(echo    = FALSE,
                tidy    = TRUE,
                comment = NA,
                message = FALSE,
-               warning = FALSE)
+               warning = FALSE,
+               fig.path = "assets/misc_shows/")
 opts_knit$set(width = 75)
 
 #### Data prep ####
