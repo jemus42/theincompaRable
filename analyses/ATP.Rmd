@@ -53,10 +53,9 @@ opts_chunk$set(echo    = FALSE,
                comment = NA,
                message = FALSE,
                warning = FALSE,
-               fig.path = "assets/atp/"
-             # dev = "svglite",
-             # fig.ext = ".svg"
-             )
+               fig.path = "assets/atp/",
+               fig.retina = 2)
+
 opts_knit$set(width = 90)
 
 #### Data Prep ####

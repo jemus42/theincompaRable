@@ -11,7 +11,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = F, warning=F, message=F, fig.path = "assets/discarded/")
+knitr::opts_chunk$set(echo = F, warning=F, message=F, fig.path = "assets/discarded/", fig.retina = 2)
 
 library(dplyr)
 library(ggplot2)
